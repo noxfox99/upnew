@@ -98,8 +98,8 @@ updateImageUrls(data);
   }
 
   return (
-  <>
-<body>
+  <div className="page-wrapper">
+
  <header>
   <div className="logo">
    <svg fill="none" height="42" viewbox="0 0 115 42" width="115">
@@ -1108,8 +1108,8 @@ updateImageUrls(data);
                 });
             });
  </script>
-</body>
-  </>
+
+  </div>
 );;
 };
 
