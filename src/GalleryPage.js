@@ -11,92 +11,126 @@ const pinata = new PinataSDK({
 });
 //bafkreifye7mrysnirozj3yvho3xrhtjrrl26jxn5f6lmpcjedsjm3k7gee
 const GalleryPage = () => {
+  const { bunkerId } = useParams();
   const { search } = useLocation();
   const params = new URLSearchParams(search);
-  const jsonUrl = params.get('jsonUrl');
+  const jsonUrl = params.get('x');
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [descrx, setDescrx] = useState([]);
+  const [Noticex, setNoticex] = useState([]);
+  const [filesDeleted, setFilesDeleted] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-function extractAfterFiles(url) {
+  function extractAfterFiles(url) {
     return url.split('files/')[1];
-}
+  }
 
-  useEffect(() => {
-    // Fetch the JSON data from the given IPFS URL
+  const deleteFilesWithDelay = async (ids, delay) => {
+    try {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      await pinata.files.delete(ids);
+    } catch (error) {
+      console.error("Error deleting files:", error);
+    }
+  };
+
+  const handleImageError = (event) => {
+    const img = event.target;
+    setTimeout(() => {
+      if (!img.complete || img.naturalWidth === 0) {
+        setFilesDeleted(true);
+      }
+    }, 3000);
+  };
+
+   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('start');
-        console.log(jsonUrl)
-      //  const { dataz, contentTypex } = await pinata.gateways.get(jsonUrl);
-        console.log('xxxxx');
-      //  console.log(dataz);
-      
-        //const datac = await pinata.gateways.get("bafkreibm6jg3ux5qumhcn2b3flc3tyu6dmlb4xa7u5bf44yegnrjhc4yeq");
-      const urlx = await pinata.gateways.createSignedURL({
-  cid: jsonUrl,
-  expires: 3000, // Number of seconds link is valid for
-});
+        const urlx = await pinata.gateways.createSignedURL({
+          cid: bunkerId,
+          expires: 3000,
+        });
 
-        console.log(urlx);
-  console.log('bbbbb');
-  const corsProxy = 'https://api.allorigins.win/get?url=';
-  const proxiedUrl = `${corsProxy}${encodeURIComponent(urlx)}`;
- console.log(proxiedUrl);
+        const proxyUrl = `https://photobunker.pro/proxy?url=${encodeURIComponent(urlx)}`;
+        const response = await fetch(proxyUrl);
 
-        const response = await fetch(proxiedUrl);
-        const datax = await response.json();
-        console.log('vvvvv');
-        console.log(datax);
         if (!response.ok) throw new Error('Network response was not OK');
-        console.log('ggggg');
-        //console.log(response);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Received data is not in JSON format");
         }
 
-        const data = JSON.parse(datax.contents);
-        //console.log(data);
-        //setImageUrls(data.images.map(image => image.url));
-    
-    async function updateImageUrls(data) {
-    const imageUrls = await Promise.all(
-        data.images.map(async (image) => {
-            const cid = extractAfterFiles(image.url); // Extract the CID from image URL
-            const signedUrl = await pinata.gateways.createSignedURL({
-                cid: cid,
-                expires: 3000, // Number of seconds link is valid for
-            });
-            return signedUrl;
-        })
-    );
-    
-    setImageUrls(imageUrls); // Set the array of signed URLs
-}
-setDescrx(data.description);
-updateImageUrls(data);
+        const data = await response.json();
 
+        const imageUrls = await Promise.all(
+          data.images.map(async (image) => {
+            const cid = extractAfterFiles(image.url);
+            const url = await pinata.gateways.createSignedURL({
+              cid: cid,
+              expires: 3000,
+            });
+            return url;
+          })
+        );
+
+        setImageUrls(imageUrls);
+
+        if (data.timex === 1 && data.xec) {
+          const idsToDelete = data.xec.map((entry) => entry.id);
+          setNoticex(data.timex);
+          await deleteFilesWithDelay(idsToDelete, 4000);
+        }
+
+        setDescrx(data.description);
       } catch (error) {
-        console.error('Error fetching gallery data:', error);
+        console.error(error);
         setError(error.message);
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [jsonUrl]);
 
-  if (loading) {
-    return <div className="text-center text-white">Loading Gallery...</div>;
+
+if (filesDeleted) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-800 text-white py-4 px-8 rounded-lg shadow-lg mb-6">
+          Файлы были удалены и больше недоступны.
+        </h1>
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300"
+        >
+          Вернуться на главную страницу
+        </button>
+      </div>
+    );
   }
 
   if (error) {
     return <div className="text-center text-red-500">Error: {error}</div>;
   }
+  const Loader = () => (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">
+        <span className="text-2xl font-semibold">X</span>
+        <div className="flex space-x-1">
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
+        </div>
+      </div>
+      <p className="mt-4 text-sm">Загрузка... Ожидайте</p>
+    </div>
+  );
 
+  const openPopup = (url) => setSelectedImage(url);
+  const closePopup = () => setSelectedImage(null);
+  
   return (
   <div className="page-wrapper">
 
