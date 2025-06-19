@@ -348,8 +348,8 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="assets/img/mocks/1.jpg"/>
+       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
+        <img src="/assets/img/mocks/1.jpg"/>
        </div>
       </div>
       <div className="files-item">
@@ -366,8 +366,8 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="assets/img/mocks/3.jpg" data-modal="modal-gallery">
-        <img src="assets/img/mocks/1.jpg"/>
+       <div className="file-img" data-img="/assets/img/mocks/3.jpg" data-modal="modal-gallery">
+        <img src="/assets/img/mocks/1.jpg"/>
        </div>
       </div>
       <div className="files-item">
@@ -384,8 +384,8 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="assets/img/mocks/1.jpg"/>
+       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
+        <img src="/assets/img/mocks/1.jpg"/>
        </div>
       </div>
       <div className="files-item">
@@ -402,8 +402,8 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="assets/img/mocks/3.jpg" data-modal="modal-gallery">
-        <img src="assets/img/mocks/1.jpg"/>
+       <div className="file-img" data-img="/assets/img/mocks/3.jpg" data-modal="modal-gallery">
+        <img src="/assets/img/mocks/1.jpg"/>
        </div>
       </div>
       <div className="files-item">
@@ -420,8 +420,8 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="assets/img/mocks/1.jpg"/>
+       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
+        <img src="/assets/img/mocks/1.jpg"/>
        </div>
       </div>
      </div>
@@ -509,7 +509,7 @@ if (filesDeleted) {
    </div>
    <div className="modal-body">
     <div className="modal-body-img">
-     <img src="assets/img/mocks/2.jpg"/>
+     <img src="/assets/img/mocks/2.jpg"/>
     </div>
     <div className="btn-prev">
      <svg fill="none" height="18" viewbox="0 0 18 18" width="18">
