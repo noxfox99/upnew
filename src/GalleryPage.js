@@ -133,7 +133,6 @@ if (filesDeleted) {
   const closePopup = () => setSelectedImage(null);
   
   return (
-<body>
  <header>
   <div className="logo">
    <svg fill="none" height="42" viewbox="0 0 115 42" width="115">
@@ -1031,9 +1030,6 @@ if (filesDeleted) {
    </div>
   </div>
  </div>
-
-
-   </body>
 );;
 };
 
