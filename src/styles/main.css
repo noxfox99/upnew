@@ -348,7 +348,7 @@ aside .aside-content .bg-img {
 .upload-settings .selects-list .custom-select .select-selected:after {
   width: 24px;
   height: 24px;
-  background: url(/assets/img/chevron.svg) center center/auto no-repeat;
+  background: url('/assets/img/chevron.svg') center center/auto no-repeat;
   transition: 0.3s ease;
   content: "";
 }
@@ -417,11 +417,11 @@ aside .aside-content .bg-img {
 .upload-settings .checkboxes-list .checkbox-item input[type=checkbox] + label:before {
   width: 24px;
   height: 24px;
-  background: url(/assets/img/unchecked.svg) center center/100% no-repeat;
+  background: url('/assets/img/unchecked.svg') center center/100% no-repeat;
   content: "";
 }
 .upload-settings .checkboxes-list .checkbox-item input[type=checkbox]:checked + label:before {
-  background: url(/assets/img/checked.svg) center center/100% no-repeat;
+  background: url('/assets/img/checked.svg') center center/100% no-repeat;
 }
 
 .files .h1 {
