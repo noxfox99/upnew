@@ -631,7 +631,7 @@ aside .aside-content .btn {
 .upload-settings .selects-list .custom-select .select-selected:after {
   width: 24px;
   height: 24px;
-  background: url(../img/chevron.svg) center center/auto no-repeat;
+  background: url('https://upnew-swart.vercel.app/assets/img/chevron.svg') center center/auto no-repeat;
   transition: 0.3s ease;
   content: "";
 }
@@ -721,11 +721,11 @@ aside .aside-content .btn {
 .upload-settings .checkboxes-list .checkbox-item input[type=checkbox] + label:before {
   width: 24px;
   height: 24px;
-  background: url(../img/unchecked.svg) center center/100% no-repeat;
+  background: url('https://upnew-swart.vercel.app/assets/img/unchecked.svg') center center/100% no-repeat;
   content: "";
 }
 .upload-settings .checkboxes-list .checkbox-item input[type=checkbox]:checked + label:before {
-  background: url(../img/checked.svg) center center/100% no-repeat;
+  background: url('https://upnew-swart.vercel.app/assets/img/checked.svg') center center/100% no-repeat;
 }
 
 .files .h1 {
