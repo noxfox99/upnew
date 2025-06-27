@@ -403,34 +403,8 @@ function UploadService() {
                     </div>
                 </div>
             </div>
-        {!filesUploaded && (
-          <>
-            <h1 className="h1">Загрузите файлы в IPFS</h1>
-            <div className="upload-form" onDrop={handleDrop} onDragOver={handleDragOver} onClick={() => fileInputRef.current.click()}>
-              <input ref={fileInputRef} type="file" multiple onChange={handleFileChange} hidden />
-              <p className="caption">Перетащите файлы или кликните для загрузки <span className="hidden-lg">Тапните для загрузки</span></p>
-            </div>
-            <div className="upload-settings">
-              <h2 className="h2">Настройки</h2>
-              <div className="custom-select selects-list">
-                <div className="select-selected">Время жизни: {expirationTime}{expirationUnit}</div>
-                <div className="select-items select-hide">
-                  <div onClick={() => { setExpirationUnit('h'); setError(''); }}>Часы</div>
-                  <div onClick={() => { setExpirationUnit('d'); setError(''); }}>Дни</div>
-                  <div onClick={() => { setExpirationUnit('w'); setError(''); }}>Недели</div>
-                  <div onClick={() => { setExpirationUnit('M'); setError(''); }}>Месяцы</div>
-                </div>
-              </div>
-              <div className="settings-inputs">
-                <input type="text" value={expirationTime} onChange={handleExpirationChange} />
-                {error && <div className="error-msg">{error}</div>}
-                <label><input type="checkbox" checked={isdelChecked} onChange={handleCheckboxChange} /> Удалить после просмотра</label>
-                <label><input type="checkbox" checked={removeMetadata} onChange={() => setRemoveMetadata(!removeMetadata)} /> Сжать и удалить метаданные</label>
-              </div>
-              <button className="btn btn-primary" onClick={handleUpload} disabled={loading || files.length === 0}>{loading ? 'Загрузка...' : 'Загрузить файлы'}</button>
-            </div>
-          </>
-        )}
+        
+  
         
       </main>
 <footer>
