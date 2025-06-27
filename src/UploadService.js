@@ -554,7 +554,7 @@ const handleUpload = async () => {
 
                             </div>
                             <div class="gallery-form">
-                                <textarea placeholder="Ваш комментарий">Загружаю сюда рабочие файлы для предварительного ознакомления. Это черновой вариант, возможны изменения и доработки. Структура и названия файлов могут отличаться от финального вида. Все материалы предназначены для внутреннего использования и обсуждения.</textarea>
+                                <textarea placeholder="Ваш комментарий">{`https://photobunker.pro/gallery/${encodeURIComponent(galleryJsonUrl)}`}</textarea>
                                 <span class="tip">*Комментарий будет добавлен ко всем загружаемым файлам</span>
                                 <div class="btn-group">
                                     <a href="{`https://photobunker.pro/gallery/${encodeURIComponent(galleryJsonUrl)}`}" class="btn btn-primary active">
