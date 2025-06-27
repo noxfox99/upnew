@@ -420,11 +420,12 @@ const handleUpload = async () => {
                             <span class="hidden-lg">Кликните для загрузки</span>
                         </label>
                           <input
-                                  type="file"
-                                  multiple
-                                  onChange={handleFileChange}
-                                    hidden
-                                      />
+          type="file"
+          multiple
+          onChange={handleFileChange}
+          className="hidden"
+          id="file-upload"
+        />
                         <div class="upload-settings">
                             <h2 class="h2">Срок хранения</h2>
                             <div class="selects-list">
