@@ -492,11 +492,14 @@ const handleUpload = async () => {
                                         </svg>
                                     </button>
                                 </div>
-                                <div class="file-img"><img src={URL.createObjectURL(file)} alt=""></div>
+                                <div class="file-img"><img src={URL.createObjectURL(file)} alt="{file.name}"/></div>
                             </div>
                       )}
                         </div>
-                        <textarea placeholder="Ваш комментарий"></textarea>
+                        <textarea value={comment}
+                                  onChange={(e) => setComment(e.target.value)} 
+                                  placeholder="Ваш комментарий">
+                                  </textarea>
                         <span class="tip">*Комментарий будет добавлен ко всем загружаемым файлам</span>
                         <a href="#" class="btn btn-primary active">
                             <svg width="26" height="27" viewBox="0 0 26 27" fill="none" xmlns="http://www.w3.org/2000/svg">
