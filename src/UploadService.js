@@ -431,62 +431,8 @@ function UploadService() {
             </div>
           </>
         )}
-
-        {files.length > 0 && (
-          <div className="files-preview">
-            {files.map((file, idx) => (
-              <div key={idx} className="file-item">
-                <img src={URL.createObjectURL(file)} alt="preview" onClick={() => setFilesUploaded(true)} />
-                <span className="file-name">{file.name}</span>
-              </div>
-            ))}
-            <textarea placeholder="Комментарий..." value={comment} onChange={e => setComment(e.target.value)} />
-            <div className="comment-hint">* Комментарий будет добавлен ко всем файлам</div>
-          </div>
-        )}
-
-        {galleryJsonUrl && (
-          <div className="gallery-link-block">
-            <h1 className="h1">Галерея готова</h1>
-            <QRCode value={`https://upfx.vercel.app/gallery/${galleryJsonUrl}`} size={200} />
-            <textarea readOnly value={`https://upfx.vercel.app/gallery/${galleryJsonUrl}`} />
-            <div className="button-group">
-              <button onClick={() => window.open(`/gallery/${galleryJsonUrl}`, '_blank')} className="btn btn-primary">Открыть галерею</button>
-              <button onClick={handleCopyUrl} className="btn btn-secondary">Копировать ссылку</button>
-            </div>
-          </div>
-        )}
+        
       </main>
-
-      <section className="features">
-        <h2 className="h1">Почему выбрать наш сервис?</h2>
-        <div className="feature-list">
-          <div className="feature-item">
-            <h3 className="h2">Продвинутое Шифрование</h3>
-            <p>Криптографическая стойкость SHA-256 обеспечивает защиту...</p>
-          </div>
-          <div className="feature-item">
-            <h3 className="h2">Приватность и Безопасность</h3>
-            <p>Мы удаляем метаданные для защиты вашей приватности...</p>
-          </div>
-          <div className="feature-item">
-            <h3 className="h2">Полная Анонимность</h3>
-            <p>Мы не храним личные данные и не отслеживаем активность...</p>
-          </div>
-          <div className="feature-item">
-            <h3 className="h2">Распределенное Хранилище</h3>
-            <p>Ваши файлы надежно хранятся в сети IPFS...</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="info-sections">
-        <h2 className="h1">Почему IPFS?</h2>
-        <p>IPFS — это децентрализованная файловая система...</p>
-        <h2 className="h1">Удаление Метаданных</h2>
-        <p>Файлы очищаются от геолокации, EXIF, и др. для анонимности...</p>
-      </section>
-
 <footer>
             <div class="footer-top">
                 <div class="logo">
