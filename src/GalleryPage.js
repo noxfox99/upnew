@@ -1,4 +1,3 @@
-// GalleryPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { PinataSDK } from "pinata";
@@ -12,125 +11,197 @@ const pinata = new PinataSDK({
 });
 //bafkreifye7mrysnirozj3yvho3xrhtjrrl26jxn5f6lmpcjedsjm3k7gee
 const GalleryPage = () => {
-  const { bunkerId } = useParams();
   const { search } = useLocation();
   const params = new URLSearchParams(search);
-  const jsonUrl = params.get('x');
+  const jsonUrl = params.get('bunker');
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [descrx, setDescrx] = useState([]);
   const [Noticex, setNoticex] = useState([]);
-  const [filesDeleted, setFilesDeleted] = useState(false);
+  const [loadingx, setLoadingx] = useState(true); 
+  const [filesDeleted, setFilesDeleted] = useState(false); // New state to hide all content if files are missing
   const [selectedImage, setSelectedImage] = useState(null);
 
   function extractAfterFiles(url) {
     return url.split('files/')[1];
-  }
+}
 
-  const deleteFilesWithDelay = async (ids, delay) => {
+   const deleteFiles = async (ids) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      await pinata.files.delete(ids);
+      console.log(ids);
+      const deletedFiles = await pinata.files.delete(ids);
+      console.log('Deleted files:', deletedFiles);
     } catch (error) {
-      console.error("Error deleting files:", error);
+      console.error('Error deleting files:', error);
     }
   };
 
-  const handleImageError = (event) => {
-    const img = event.target;
-    setTimeout(() => {
-      if (!img.complete || img.naturalWidth === 0) {
-        setFilesDeleted(true);
-      }
-    }, 3000);
+const deleteFilesWithDelay = async (ids, delay) => {
+  try {
+    console.log(`Waiting ${delay}ms before deleting files...`);
+    await new Promise((resolve) => setTimeout(resolve, delay)); // Wait for the specified delay
+    const deletedFiles = await pinata.files.delete(ids);
+    console.log("Deleted files:", deletedFiles);
+  } catch (error) {
+    console.error("Error deleting files:", error);
+  }
+};
+	
+ const handleImageError = (event) => {
+  // Add a timeout to allow for delayed responses
+  const img = event.target;
+  
+  setTimeout(() => {
+    if (!img.complete || img.naturalWidth === 0) {
+      console.error("Image failed to load:", img.src);
+      setFilesDeleted(true);
+    }
+  }, 5000); // Wait 5 seconds before marking it as failed
+};
+  const checkImageExists = async (url) => {
+    try {
+      const response = await fetch(url, { method: "HEAD" });
+      return response.ok; // Returns true if the image exists
+    } catch (error) {
+      console.error("Error checking image:", error);
+      return false;
+    }
   };
+	 
+ // Function to unpin file from Pinata
 
-   useEffect(() => {
+  
+  useEffect(() => {
+     const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+    // Fetch the JSON data from the given IPFS URL
     const fetchData = async () => {
       try {
-        const urlx = await pinata.gateways.createSignedURL({
-          cid: bunkerId,
-          expires: 3000,
-        });
+        //setLoadingx(true);
+     //  console.log('start');
+     //   console.log(bunkerId)
+      //  const { dataz, contentTypex } = await pinata.gateways.get(jsonUrl);
+      //  console.log('xxxxx');
+      //  console.log(dataz);
+    
 
-        const proxyUrl = `https://photobunker.pro/proxy?url=${encodeURIComponent(urlx)}`;
+        //const datac = await pinata.gateways.get("bafkreibm6jg3ux5qumhcn2b3flc3tyu6dmlb4xa7u5bf44yegnrjhc4yeq");
+      const urlx = await pinata.gateways.createSignedURL({
+  cid: bunkerId,
+  expires: 3000, // Number of seconds link is valid for
+});
+
+  //console.log(urlx);
+  //console.log('bbbbb');
+
+  const corsProxy = 'https://api.allorigins.win/get?url=';
+  const proxiedUrl = `${corsProxy}${encodeURIComponent(urlx)}`;
+  const proxyUrl = `https://photobunker.pro/proxy?url=${encodeURIComponent(urlx)}`;
+
+ //console.log(proxyUrl);
+ 
         const response = await fetch(proxyUrl);
-
+        const datax = await response.json();
+       // console.log('vvvvv');
+      //  console.log(datax);
         if (!response.ok) throw new Error('Network response was not OK');
+    //    console.log('ggggg');
+        //console.log(response);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Received data is not in JSON format");
         }
 
-        const data = await response.json();
-
-        const imageUrls = await Promise.all(
-          data.images.map(async (image) => {
-            const cid = extractAfterFiles(image.url);
-            const url = await pinata.gateways.createSignedURL({
-              cid: cid,
-              expires: 3000,
+        const data = datax;
+        //console.log(data);
+        //setImageUrls(data.images.map(image => image.url));
+    
+    async function updateImageUrls(data) {
+    const imageUrls = await Promise.all(
+        data.images.map(async (image) => {
+            const cid = extractAfterFiles(image.url); // Extract the CID from image URL
+            const signedUrl = await pinata.gateways.createSignedURL({
+                cid: cid,
+                expires: 3000, // Number of seconds link is valid for
             });
-            return url;
-          })
-        );
-
-        setImageUrls(imageUrls);
-
-        if (data.timex === 1 && data.xec) {
+            return signedUrl;
+        })
+    );
+    setImageUrls(imageUrls); // Set the array of signed URLs
+        const imageUrlsx = await Promise.all(
+        data.images.map(async (imagex) => {
+            const cidx = extractAfterFiles(imagex.url); // Extract the CID from image URL
+	    
+     if (data.timex === 1) {
+	      
+              //setNoticex(data.timex);
+              if (data.timex === 1 && data.xec) {
           const idsToDelete = data.xec.map((entry) => entry.id);
-          setNoticex(data.timex);
-          await deleteFilesWithDelay(idsToDelete, 4000);
+          setNoticex(data.timex); // Display notice
+          await deleteFilesWithDelay(idsToDelete,4000); // Call delete function
         }
-
-        setDescrx(data.description);
+            }
+        })
+    );
+}
+setDescrx(data.description);
+updateImageUrls(data);
       } catch (error) {
-        console.error(error);
-        setError(error.message);
+        //console.error('Error fetching gallery data:', error);
+      //  setError(error.message);
       } finally {
         setLoading(false);
+       // setLoadingx(false);
       }
     };
+//return () => clearTimeout(timer); // Cleanup timer
     fetchData();
+    setLoadingx(false);
   }, [jsonUrl]);
 
-
 if (filesDeleted) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-800 text-white py-4 px-8 rounded-lg shadow-lg mb-6">
-          Файлы были удалены и больше недоступны.
-        </h1>
-        <button
-          onClick={() => (window.location.href = "/")}
-          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300"
-        >
-          Вернуться на главную страницу
-        </button>
-      </div>
-    );
-  }
+  // Show this notice and hide all other content if any image fails to load
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-800 text-white py-4 px-8 rounded-lg shadow-lg mb-6">
+        Файлы были удалены и больше недоступны.
+      </h1>
+      <button
+        onClick={() => (window.location.href = "/")}
+        className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300"
+      >
+        Вернуться на главную страницу
+      </button>
+    </div>
+  );
+}
 
   if (error) {
     return <div className="text-center text-red-500">Error: {error}</div>;
   }
+  // Loader component
   const Loader = () => (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">
-        <span className="text-2xl font-semibold">X</span>
+        <span className="text-2xl font-semibold">PhotoBunker</span>
         <div className="flex space-x-1">
-          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
-          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
-          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "1.2s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "1.4s" }}></span>
         </div>
       </div>
       <p className="mt-4 text-sm">Загрузка... Ожидайте</p>
     </div>
   );
+  const openPopup = (url) => {
+    setSelectedImage(url);
+  };
 
-  const openPopup = (url) => setSelectedImage(url);
-  const closePopup = () => setSelectedImage(null);
+  const closePopup = () => {
+    setSelectedImage(null);
+  };
   
   return (
     <div>
@@ -334,6 +405,7 @@ if (filesDeleted) {
       Загружаю сюда рабочие файлы для предварительного ознакомления. Это черновой вариант, возможны изменения и доработки. Структура и названия файлов могут отличаться от финального вида. Все материалы предназначены для внутреннего использования и обсуждения.
      </p>
      <div className="files-list">
+         {imageUrls.map((url, index) => (
       <div className="files-item">
        <div className="file-name">
         <span>
@@ -348,82 +420,17 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
+       <div className="file-img" data-img="{url}" data-modal="modal-gallery">
+          <img
+                    src={url}
+                    alt={`Gallery Image ${index + 1}`}
+                    onClick={() => openPopup(url)}
+                    onError={handleImageError}
+                  />
        </div>
       </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/3.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/3.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
+   ))}
+    
      </div>
     </div>
    </div>
