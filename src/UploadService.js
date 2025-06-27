@@ -419,7 +419,9 @@ const handleUpload = async () => {
                     </div>
                     {!filesUploaded && ( <h1 class="h1">Загрузите файлы в <span>IPFS</span></h1> )}
                      {!filesUploaded && ( <form class="upload">
-                        <label for="file-upload" class="upload-form">
+                        <label for="file-upload" class="upload-form" 
+                       onDrop={handleDrop}
+                       onDragOver={handleDragOver}>
                             <svg class="upload-icon" width="187" height="186" viewBox="0 0 187 186" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g filter="url(#filter0_i_2010_3283)">
                                     <path d="M70.25 131.75V85.25L54.75 100.75" stroke="#21252A" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
@@ -484,11 +486,17 @@ const handleUpload = async () => {
                             </div>
                             <div class="checkboxes-list">
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="delete" id="delete" hidden/>
+                                    <input type="checkbox" name="delete"
+                                    id="delete" 
+                                    hidden
+                                    />
                                     <label for="delete">Удалить после просмотра</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="meta" id="meta" hidden/>
+                                    <input type="checkbox" name="meta" 
+                                      id="meta" 
+                                      hidden
+                                      />
                                     <label for="meta">Сжать и удалить метаданные</label>
                                 </div>
                             </div>
