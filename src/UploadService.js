@@ -477,7 +477,7 @@ const handleUpload = async () => {
                         </div>
                         <p>
                             Метаданные были успешно очищены при загрузке.
-                            <br>
+                            <br/>
                             Ваши файлы безопасны и защищены от лишней информации.
                         </p>
                         <div class="files-list">
@@ -494,7 +494,7 @@ const handleUpload = async () => {
                                 </div>
                                 <div class="file-img"><img src={URL.createObjectURL(file)} alt=""></div>
                             </div>
-                           )}
+                      )}
                         </div>
                         <textarea placeholder="Ваш комментарий"></textarea>
                         <span class="tip">*Комментарий будет добавлен ко всем загружаемым файлам</span>
