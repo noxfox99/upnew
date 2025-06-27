@@ -334,6 +334,7 @@ if (filesDeleted) {
       Загружаю сюда рабочие файлы для предварительного ознакомления. Это черновой вариант, возможны изменения и доработки. Структура и названия файлов могут отличаться от финального вида. Все материалы предназначены для внутреннего использования и обсуждения.
      </p>
      <div className="files-list">
+        {imageUrls.map((url, index) => (
       <div className="files-item">
        <div className="file-name">
         <span>
@@ -349,9 +350,10 @@ if (filesDeleted) {
         </button>
        </div>
        <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
+        <img src="{url}>
        </div>
       </div>
+          ))}
       
      
      </div>
