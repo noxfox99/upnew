@@ -494,7 +494,7 @@ const handleUpload = async () => {
                                 </div>
                                 <div class="file-img"><img src={URL.createObjectURL(file)} alt="{file.name}"/></div>
                             </div>
-                      )}
+                      ))}
                         </div>
                         <textarea value={comment}
                                   onChange={(e) => setComment(e.target.value)} 
