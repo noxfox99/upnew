@@ -101,7 +101,7 @@ function UploadService() {
   if (loadingx) return <div className="loading">Loading...</div>;
 
   return (
-    <div className="page-wrapper upload-page">
+    <div>
       <header>
             <div class="logo">
                 <svg width="115" height="42" viewBox="0 0 115 42" fill="none" xmlns="http://www.w3.org/2000/svg">
