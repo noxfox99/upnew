@@ -425,7 +425,8 @@ const handleUpload = async () => {
           onChange={handleFileChange}
           className="hidden"
           id="file-upload"
-        />
+          hidden
+          />
                         <div class="upload-settings">
                             <h2 class="h2">Срок хранения</h2>
                             <div class="selects-list">
