@@ -282,11 +282,11 @@ function UploadService() {
                             </div>
                             <div class="checkboxes-list">
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="delete" id="delete" hidden>
+                                    <input type="checkbox" name="delete" id="delete">
                                     <label for="delete">Удалить после просмотра</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="meta" id="meta" hidden>
+                                    <input type="checkbox" name="meta" id="meta">
                                     <label for="meta">Сжать и удалить метаданные</label>
                                 </div>
                             </div>
