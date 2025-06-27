@@ -1,105 +1,270 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { PinataSDK } from "pinata";
+import QRCode from 'qrcode.react'; // Импортируем компонент QRCode
 import imageCompression from 'browser-image-compression';
-import QRCode from 'qrcode.react';
-import { PinataSDK } from 'pinata';
 
-// Pinata credentials
-const PINATA_API_KEY = 'b1adb65f27feca2b1cdc';
-const PINATA_SECRET_API_KEY = 'eyJhbGciOiJIUzI1NiI...';
+const PINATA_API_KEY = 'b1adb65f27feca2b1cdc';  // Replace with your Infura Project ID
+const PINATA_SECRET_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJlZGE3OTU1ZS01NThhLTQ0YjItYmUwYS0xMmE5NTRhYmYxZGMiLCJlbWFpbCI6InJvaW92ZXJAcHJvdG9uLm1lIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImIxYWRiNjVmMjdmZWNhMmIxY2RjIiwic2NvcGVkS2V5U2VjcmV0IjoiNmUzY2RjNmExNWU1YThhNWUxNTkwMmI5NGUwMWM1MjgyY2U0ODM3ODBhMWY0ZjcwMzQxYzI3NTFjYjVhNTlkZCIsImV4cCI6MTc2NDQxMjU3Nn0.FD15exn56ICeP46SOWpCXkOqpgsR1Evh9Cde9-xnUjI';  // Replace with your Infura Project Secret
 const pinata = new PinataSDK({
   pinataJwt: PINATA_SECRET_API_KEY,
-  pinataGateway: 'https://chocolate-internal-scorpion-907.mypinata.cloud',
+  pinataGateway: "https://files.photobunker.pro/",
 });
+const compressAndRemoveMetadata = async (file) => {
+  const options = {
+    maxSizeMB: 1, // Максимальный размер файла — 1 МБ
+    maxWidthOrHeight: 1920, // Изменить размер изображения до 1920x1920
+    useWebWorker: true, // Включить многопоточность для повышения производительности
+    exifOrientation: true, // Сохраняет правильную ориентацию, но удаляет метаданные
+  };
+
+  try {
+    const compressedFile = await imageCompression(file, options); // Сжимает файл
+    return compressedFile; // Возвращает обработанный файл
+  } catch (error) {
+    console.error('Ошибка при удалении метаданных и сжатии:', error);
+    throw new Error('Ошибка удаления метаданных и сжатия.');
+  }
+};
 
 function UploadService() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [galleryJsonUrl, setGalleryJsonUrl] = useState(null);
-  const [expirationTime, setExpirationTime] = useState(2);
-  const [expirationUnit, setExpirationUnit] = useState('d');
-  const [removeMetadata, setRemoveMetadata] = useState(false);
-  const [isdelChecked, setIsdelChecked] = useState(false);
+  const [uploadedUrls, setUploadedUrls] = useState([]);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [comment, setComment] = useState('');
-  const [loadingx, setLoadingx] = useState(true);
+  const [galleryJsonUrl, setGalleryJsonUrl] = useState(null); // URL for the gallery JSON file
+  const [expirationTime, setExpirationTime] = useState(12); // Default to 2
+  const [expirationUnit, setExpirationUnit] = useState('M'); // Default to days
+  const [removeMetadata, setRemoveMetadata] = useState(false);
+  const [loadingx, setLoadingx] = useState(true); 
   const [filesUploaded, setFilesUploaded] = useState(false);
-  const [error, setError] = useState('');
-  const fileInputRef = useRef(null);
+  const [isdelChecked, setIsdelChecked] = useState(false);
+  const [error, setError] = useState(""); // Error message state
 
-  // Initial loader
-  useEffect(() => {
-    const timer = setTimeout(() => setLoadingx(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
-  // Success message timer
-  useEffect(() => {
-    if (!filesUploaded) return;
-    const timer = setTimeout(() => setFilesUploaded(false), 5000);
-    return () => clearTimeout(timer);
-  }, [filesUploaded]);
+     const handleExpirationChange = (event) => {
+    const value = event.target.value;
 
-  // Custom select logic
-  useEffect(() => {
-    function closeAllSelect() {
-      document.querySelectorAll('.select-items').forEach(el => el.classList.add('select-hide'));
-      document.querySelectorAll('.select-selected').forEach(el => el.classList.remove('select-arrow-active'));
+    // Validate the input value based on the selected unit
+    let maxAllowedValue;
+    switch (expirationUnit) {
+      case "h": // Hours
+        maxAllowedValue = 24;
+        break;
+      case "d": // Days
+        maxAllowedValue = 365;
+        break;
+      case "w": // Weeks
+        maxAllowedValue = 52;
+        break;
+      case "M": // Months
+        maxAllowedValue = 12;
+        break;
+      default:
+        maxAllowedValue = Infinity;
     }
-    document.querySelectorAll('.custom-select').forEach(selEl => {
-      const selected = selEl.querySelector('.select-selected');
-      selected.addEventListener('click', e => {
-        e.stopPropagation(); closeAllSelect();
-        selEl.querySelector('.select-items').classList.toggle('select-hide');
-        selected.classList.toggle('select-arrow-active');
-      });
-    });
-    document.addEventListener('click', closeAllSelect);
-    return () => document.removeEventListener('click', closeAllSelect);
+
+    if (value === "" || (Number(value) > 0 && Number(value) <= maxAllowedValue)) {
+      setExpirationTime(value); // Update input if valid
+      setError(""); // Clear error
+    } else {
+      setError(
+        `Максимально допустимое значение для "${getUnitLabel(
+          expirationUnit
+        )}" - ${maxAllowedValue}.`
+      );
+    }
+  };
+
+  const handleUnitChange = (event) => {
+    setExpirationUnit(event.target.value);
+    setError(""); // Reset error when unit changes
+  };
+
+  const getUnitLabel = (unit) => {
+    switch (unit) {
+      case "h":
+        return "Часы";
+      case "d":
+        return "Дни";
+      case "w":
+        return "Недели";
+      case "M":
+        return "Месяцы";
+      default:
+        return "";
+    }
+  };
+      // Simulate page load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoadingx(false);
+    }, 3000); // Simulate a 3-second page load
+
+    return () => clearTimeout(timer); // Cleanup timer
   }, []);
 
-  const handleFileChange = e => {
-    const selected = Array.from(e.target.files);
-    setFiles(prev => [...prev, ...selected].slice(0, 10));
+     const handleCheckboxChange = (event) => {
+    setIsdelChecked(event.target.checked);
   };
-  const handleDrop = e => { e.preventDefault(); handleFileChange(e); };
-  const handleDragOver = e => e.preventDefault();
-  const handleExpirationChange = e => setExpirationTime(e.target.value);
-  const handleUnitChange = e => setExpirationUnit(e.target.value);
-  const handleCheckboxChange = e => setIsdelChecked(e.target.checked);
+  // Loader component
+  const Loader = () => (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">
+        <span className="text-2xl font-semibold">PhotoBunker</span>
+        <div className="flex space-x-1">
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "1.2s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "1.4s" }}></span>
+        </div>
+      </div>
+      <p className="mt-4 text-sm">Загрузка... Ожидайте</p>
+    </div>
+  );
+const handleFileChange = async (event) => {
+  const selectedFiles = Array.from(event.target.files);
 
-  const createGalleryJson = (imageUrls, descrx, idxc) => JSON.stringify({
-    title: 'Gallery', timex: isdelChecked ? 1 : 3, description: descrx,
-    images: imageUrls.map(url => ({ url })), xec: idxc.map(id => ({ id })),
-  }, null, 2);
+  try {
+    const processedFiles = await Promise.all(
+      selectedFiles.map(async (file) => {
+        if (removeMetadata) {
+          return await compressAndRemoveMetadata(file);
+        }
+        return file; // Если флажок не выбран, возвращаем исходный файл
+      })
+    );
 
-  const handleUpload = async () => {
-    setLoading(true); setError('');
+    if (processedFiles.length + files.length <= 10) {
+      setFiles((prevFiles) => [...prevFiles, ...processedFiles]);
+    } else {
+      alert('Можно загрузить не более 10 файлов.');
+    }
+  } catch (error) {
+    console.error('Ошибка обработки файлов:', error);
+    alert('Не удалось обработать файлы.');
+  }
+};
+   const createGalleryJson = (imageUrls,descrx,idxc) => {
+     const advancedDelChecked = isdelChecked;
+     console.log(advancedDelChecked);
+    return JSON.stringify({
+      title: "Gallery",
+      timex: advancedDelChecked ? 1 : 3,
+      description: descrx,
+      images: imageUrls.map(url => ({ url })),
+      xec: idxc.map(id => ({ id })),
+    }, null, 2);
+  };
+  
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    if (droppedFiles.length + files.length <= 10) {
+      setFiles((prevFiles) => [...prevFiles, ...droppedFiles]);
+    } else {
+      alert('You can only upload a maximum of 10 files.');
+    }
+  };
+  
+    const handleCopyUrl = () => {
+  navigator.clipboard.writeText(`https://photobunker.pro/gallery/${encodeURIComponent(galleryJsonUrl)}`);
+  showNotification("Ссылка скопирована в буфер обмена!");
+};
+
+const showNotification = (message) => {
+  // Create the notification element
+  const notification = document.createElement("div");
+  notification.textContent = message;
+
+  // Add Tailwind classes for styling
+  notification.className = `
+    fixed bottom-5 right-5 bg-gray-800 text-white text-sm px-4 py-2 rounded shadow-lg 
+    opacity-0 transition-opacity duration-300 ease-in-out
+  `;
+
+
+  // Append to the document
+  document.body.appendChild(notification);
+
+  // Show notification
+  setTimeout(() => {
+    notification.classList.add("opacity-100");
+  }, 10);
+
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.classList.remove("opacity-100");
+    setTimeout(() => {
+      notification.remove();
+    }, 300); // Wait for fade-out animation to complete
+  }, 3000);
+};
+ const handleDeleteNow = () => {
+    window.location.reload();
+  };
+  
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+const handleUpload = async () => {
+    setLoading(true);
+    const imageUrls = [];
+    const idxc = [];
+
     try {
-      const imageUrls = [], idxc = [];
-      await Promise.all(files.map(async file => {
-        const res = await pinata.upload.file(file);
-        imageUrls.push(`https://chocolate-internal-scorpion-907.mypinata.cloud/files/${res.cid}`);
-        idxc.push(res.id);
-      }));
-      const jsonBlob = new Blob([createGalleryJson(imageUrls, comment, idxc)], { type: 'application/json' });
-      const jsonFile = new File([jsonBlob], 'gallery.json');
-      const jsonRes = await pinata.upload.file(jsonFile);
-      setGalleryJsonUrl(jsonRes.cid);
-      setFilesUploaded(true);
-      setFiles([]);
-    } catch {
-      setError('Ошибка загрузки');
+      // Step 1: Upload each image and get its URL
+      const uploadPromises = files.map(async (file) => {
+        const response = await pinata.upload.file(file);
+        imageUrls.push(`https://chocolate-internal-scorpion-907.mypinata.cloud/files/${response.cid}`);
+        idxc.push(`${response.id}`);
+      });
+      await Promise.all(uploadPromises);
+
+      // Step 2: Create JSON content for the gallery
+      const jsonContent = createGalleryJson(imageUrls,comment,idxc);
+      const jsonBlob = new Blob([jsonContent], { type: 'application/json' });
+      const jsonFile = new File([jsonBlob], 'gallery.json', { type: 'application/json' });
+
+      // Step 3: Upload JSON file to IPFS
+      const jsonResponse = await pinata.upload.file(jsonFile);
+      console.log('test')
+            console.log(jsonResponse.cid)
+
+   
+    //const datax = await pinata.gateways.get(jsonResponse.cid);
+    //console.log(datax)
+
+    setGalleryJsonUrl(`${jsonResponse.cid}`);
+    //console.log(datax)
+    setFilesUploaded(true);
+
+  
+
+      
+      console.log(jsonResponse.cid)
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert('Failed to upload files.');
     } finally {
       setLoading(false);
+      setFiles([]);
     }
   };
-
-  const handleCopyUrl = () => {
-    const url = `https://upfx.vercel.app/gallery/${galleryJsonUrl}`;
-    navigator.clipboard.writeText(url);
-    alert('Ссылка скопирована');
-  };
-
-  if (loadingx) return <div className="loading">Loading...</div>;
-
+ const Loaderx = () => (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+      <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">
+        <span className="text-2xl font-semibold">PhotoBunker</span>
+        <div className="flex space-x-1">
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></span>
+        </div>
+      </div>
+      <p className="mt-4 text-sm">Загрузка... Ожидайте</p>
+    </div>
+  );
   return (
     <div>
       <header>
