@@ -352,78 +352,8 @@ if (filesDeleted) {
         <img src="/assets/img/mocks/1.jpg"/>
        </div>
       </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/3.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/3.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
-      <div className="files-item">
-       <div className="file-name">
-        <span>
-         Image1.jpeg
-        </span>
-        <button className="btn remove">
-         <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-          <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-          <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-          </path>
-         </svg>
-        </button>
-       </div>
-       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="/assets/img/mocks/1.jpg"/>
-       </div>
-      </div>
+      
+     
      </div>
     </div>
    </div>
