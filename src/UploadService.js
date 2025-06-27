@@ -282,7 +282,7 @@ function UploadService() {
                                             <div data-value="лет">лет</div>
                                         </div>
                                     </div>
-                                    <input type="hidden" name="date" id="datePeriod" value="">
+                                    <input type="hidden" name="date" id="datePeriod" value=""/>
                                 </div>
                             </div>
                             <div class="checkboxes-list">
@@ -291,7 +291,7 @@ function UploadService() {
                                     <label for="delete">Удалить после просмотра</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="meta" id="meta">
+                                    <input type="checkbox" name="meta" id="meta"/>
                                     <label for="meta">Сжать и удалить метаданные</label>
                                 </div>
                             </div>
