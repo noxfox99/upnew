@@ -391,9 +391,8 @@ const handleUpload = async () => {
                             </a>
                         </div>
                     </div>
-                    {!filesUploaded && (
-                    <h1 class="h1">Загрузите файлы в <span>IPFS</span></h1>
-                    <form class="upload">
+                    {!filesUploaded && ( <h1 class="h1">Загрузите файлы в <span>IPFS</span></h1> )}
+                     {!filesUploaded && ( <form class="upload">
                         <label for="file-upload" class="upload-form">
                             <svg class="upload-icon" width="187" height="186" viewBox="0 0 187 186" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <g filter="url(#filter0_i_2010_3283)">
