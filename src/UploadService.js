@@ -484,11 +484,11 @@ const handleUpload = async () => {
                             </div>
                             <div class="checkboxes-list">
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="delete" id="delete"/>
+                                    <input type="checkbox" name="delete" id="delete" hidden/>
                                     <label for="delete">Удалить после просмотра</label>
                                 </div>
                                 <div class="checkbox-item">
-                                    <input type="checkbox" name="meta" id="meta"/>
+                                    <input type="checkbox" name="meta" id="meta" hidden/>
                                     <label for="meta">Сжать и удалить метаданные</label>
                                 </div>
                             </div>
