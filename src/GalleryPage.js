@@ -350,7 +350,7 @@ if (filesDeleted) {
         </button>
        </div>
        <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src="{url}">
+        <img src="{url}"/>
        </div>
       </div>
           ))}
