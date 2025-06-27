@@ -615,7 +615,9 @@ const handleUpload = async () => {
             </div>
         </footer>
     </div>
+)}
+    </>
   );
-}
+};
 
 export default UploadService;
