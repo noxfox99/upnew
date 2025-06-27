@@ -266,6 +266,10 @@ const handleUpload = async () => {
     </div>
   );
   return (
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
     <div>
       <header>
             <div class="logo">
