@@ -348,7 +348,7 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
+       <div  key={index} className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
         <img src={url} 
           onClick={() => openPopup(url)}
   />
@@ -362,6 +362,22 @@ if (filesDeleted) {
    </div>
   </div>
  </main>
+                <Modal
+            isOpen={!!selectedImage}
+            onRequestClose={closePopup}
+            contentLabel="Image Popup"
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75"
+          >
+            <div className="relative">
+              <img src={selectedImage} alt="Popup" className="max-w-full max-h-full rounded" />
+              <button
+                onClick={closePopup}
+                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full"
+              >
+                Закрыть
+              </button>
+            </div>
+          </Modal>
  <footer>
   <div className="footer-top">
    <div className="logo">
