@@ -449,7 +449,7 @@ if (filesDeleted) {
         data-img={url}
         data-modal="modal-gallery"
       >
-        <img src={url} alt={`Preview ${index}`} />
+        <img src={url}  onClick={() => setSelectedImage(url)} alt={`Preview ${index}`} />
       </div>
       </div>
           ))}
