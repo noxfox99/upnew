@@ -448,10 +448,8 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div  key={index} className="file-img" data-img="/assets/img/mocks/2.jpg" data-modal="modal-gallery">
-        <img src={url} 
-          onClick={() => openPopup(url)}
-  />
+       <div  key={index} className="file-img" data-img="{url}" data-modal="modal-gallery">
+        <img src={url} />
        </div>
       </div>
           ))}
