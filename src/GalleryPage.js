@@ -448,7 +448,7 @@ if (filesDeleted) {
         className="file-img"
         data-img={url}
         data-modal="modal-gallery"
-        onClick={() => handleImageClick(url)}
+        onClick={() => handleModals()}
       >
         <img src={url} alt={`Preview ${index}`} />
       </div>
