@@ -227,11 +227,7 @@ if (filesDeleted) {
       </div>
       <p className="mt-4 text-sm">Загрузка... Ожидайте</p>
     </div>
-  );
-
-  const openPopup = (url) => setSelectedImage(url);
-  const closePopup = () => setSelectedImage(null);
-  
+  );  
   return (
     <div>
  <header>
@@ -448,9 +444,14 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div  key={index} className="file-img" data-img="{url}" data-modal="modal-gallery">
-        <img src={url} />
-       </div>
+       <div
+        className="file-img"
+        data-img={url}
+        data-modal="modal-gallery"
+        onClick={() => handleImageClick(url)}
+      >
+        <img src={url} alt={`Preview ${index}`} />
+      </div>
       </div>
           ))}
       
