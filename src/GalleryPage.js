@@ -23,6 +23,14 @@ const GalleryPage = () => {
   const [Noticex, setNoticex] = useState([]);
   const [filesDeleted, setFilesDeleted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+const [isModalActive, setIsModalActive] = useState(false);
+
+  const handleImageClick = () => {
+  setIsModalActive(true);
+};
+const closeModal = () => {
+  setIsModalActive(false);
+};
 
   function extractAfterFiles(url) {
     return url.split('files/')[1];
@@ -445,11 +453,11 @@ if (filesDeleted) {
         </button>
        </div>
        <div
-        className="file-img"
-        data-img={url}
-        data-modal="modal-gallery"
-      >
-        <img src={url}  onClick={() => setSelectedImage(url)} alt={`Preview ${index}`} />
+    key={idx}
+    onClick={handleImageClick}
+    style={{ cursor: 'pointer' }}
+  >
+        <img src={url}  alt={`Preview ${index}`} />
       </div>
       </div>
           ))}
@@ -521,7 +529,7 @@ if (filesDeleted) {
    </span>
   </div>
  </footer>
- <div className="modal" id="modal-gallery">
+ <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery">
   <div className="modal-content card">
    <div className="modal-head --b-bottom">
     <span>
