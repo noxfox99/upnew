@@ -47,6 +47,8 @@ const GalleryPage = () => {
   };
 
    useEffect(() => {
+      const body = document.body;
+
       const closeAllSelect = (elmnt) => {
       document.querySelectorAll('.select-selected').forEach((select) => {
         if (elmnt !== select) {
