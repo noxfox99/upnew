@@ -47,6 +47,104 @@ const GalleryPage = () => {
   };
 
    useEffect(() => {
+      const closeAllSelect = (elmnt) => {
+      document.querySelectorAll('.select-selected').forEach((select) => {
+        if (elmnt !== select) {
+          select.classList.remove('select-arrow-active');
+        }
+      });
+
+      document.querySelectorAll('.select-items').forEach((items) => {
+        items.classList.add('select-hide');
+      });
+    };
+
+        const handleDropdowns = () => {
+      document.querySelectorAll('.custom-select').forEach((customSelect) => {
+        const selectSelected = customSelect.querySelector('.select-selected');
+        const selectItems = customSelect.querySelector('.select-items');
+        const selectItemsList = customSelect.querySelector('.select-items-list');
+        const hiddenInput = customSelect.querySelector('input[type="hidden"]');
+
+        if (!selectSelected || !selectItems || !selectItemsList || !hiddenInput) return;
+
+        selectSelected.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeAllSelect(this);
+          this.classList.toggle('select-arrow-active');
+          selectItems.classList.toggle('select-hide');
+        });
+
+        selectItemsList.querySelectorAll('div').forEach((item) => {
+          item.addEventListener('click', function () {
+            const selectedValue = this.getAttribute('data-value');
+            const selectedText = this.textContent;
+
+            selectSelected.textContent = selectedText;
+            hiddenInput.value = selectedValue;
+
+            selectItemsList.querySelectorAll('.same-as-selected').forEach((el) => {
+              el.classList.remove('same-as-selected');
+            });
+
+            this.classList.add('same-as-selected');
+            selectSelected.click();
+          });
+        });
+
+        // Initialize with first option
+        const firstItem = selectItemsList.querySelector('div');
+        if (firstItem) {
+          const defaultValue = firstItem.getAttribute('data-value');
+          const defaultText = firstItem.textContent;
+          selectSelected.textContent = defaultText;
+          hiddenInput.value = defaultValue;
+          firstItem.classList.add('same-as-selected');
+        }
+      });
+    };
+
+    const handleModals = () => {
+      document.querySelectorAll('[data-modal]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const modalId = button.getAttribute('data-modal');
+          const modal = document.getElementById(modalId);
+          const imgSrc = button.getAttribute('data-img');
+          const img = modal?.querySelector('.modal-body-img img');
+
+          if (img && imgSrc) img.src = imgSrc;
+
+          modal?.classList.add('active');
+          body.style.overflow = 'hidden';
+        });
+      });
+
+      document.querySelectorAll('.close').forEach((button) => {
+        button.addEventListener('click', () => {
+          const modalId = button.getAttribute('data-modal-close');
+          const modal = document.getElementById(modalId);
+          modal?.classList.remove('active');
+          body.style.overflow = 'auto';
+        });
+      });
+
+      document.querySelectorAll('.modal').forEach((modal) => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('active');
+            body.style.overflow = 'auto';
+          }
+        });
+      });
+    };
+
+    const handleDocumentClick = () => {
+      document.addEventListener('click', closeAllSelect);
+    };
+
+    handleDropdowns();
+    handleModals();
+    handleDocumentClick();
     const fetchData = async () => {
       try {
         const urlx = await pinata.gateways.createSignedURL({
