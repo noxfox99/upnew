@@ -142,9 +142,6 @@ const GalleryPage = () => {
       document.addEventListener('click', closeAllSelect);
     };
 
-    handleDropdowns();
-    handleModals();
-    handleDocumentClick();
     const fetchData = async () => {
       try {
         const urlx = await pinata.gateways.createSignedURL({
@@ -191,6 +188,9 @@ const GalleryPage = () => {
       }
     };
     fetchData();
+    handleDropdowns();
+    handleModals();
+    handleDocumentClick();
   }, [jsonUrl]);
 
 
