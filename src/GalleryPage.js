@@ -381,7 +381,7 @@ if (filesDeleted) {
                 </div>
                 <div class="modal-body">
                     <div class="modal-body-img">
-                        <img src="assets/img/mocks/2.jpg" alt="">
+                        <img src="assets/img/mocks/2.jpg" alt=""/>
                     </div>
                     <div class="btn-prev">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -451,9 +451,6 @@ if (filesDeleted) {
   <div className="footer-bot">
    <span>
     Бесплатное хранилище нового поколения для ваших медиафайлов
-   </span>
-   <span>
-    Разработка сайта: Yoyo Agency
    </span>
    <span>
     All rights reserved
