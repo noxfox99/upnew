@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PinataSDK } from "pinata";
 import QRCode from 'qrcode.react'; // Импортируем компонент QRCode
 import imageCompression from 'browser-image-compression';
+import CustomSelect from './CustomSelect'; // Adjust path if needed
 
 const PINATA_API_KEY = 'b1adb65f27feca2b1cdc';  // Replace with your Infura Project ID
 const PINATA_SECRET_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJlZGE3OTU1ZS01NThhLTQ0YjItYmUwYS0xMmE5NTRhYmYxZGMiLCJlbWFpbCI6InJvaW92ZXJAcHJvdG9uLm1lIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImIxYWRiNjVmMjdmZWNhMmIxY2RjIiwic2NvcGVkS2V5U2VjcmV0IjoiNmUzY2RjNmExNWU1YThhNWUxNTkwMmI5NGUwMWM1MjgyY2U0ODM3ODBhMWY0ZjcwMzQxYzI3NTFjYjVhNTlkZCIsImV4cCI6MTc2NDQxMjU3Nn0.FD15exn56ICeP46SOWpCXkOqpgsR1Evh9Cde9-xnUjI';  // Replace with your Infura Project Secret
@@ -10,6 +11,7 @@ const pinata = new PinataSDK({
   pinataJwt: PINATA_SECRET_API_KEY,
   pinataGateway: "https://files.photobunker.pro/",
 });
+
 const compressAndRemoveMetadata = async (file) => {
   const options = {
     maxSizeMB: 1, // Максимальный размер файла — 1 МБ
@@ -42,7 +44,8 @@ function UploadService() {
   const [filesUploaded, setFilesUploaded] = useState(false);
   const [isdelChecked, setIsdelChecked] = useState(false);
   const [error, setError] = useState(""); // Error message state
-
+  const [number, setNumber] = useState('3');
+  const [period, setPeriod] = useState('дней');
      const handleExpirationChange = (event) => {
     const value = event.target.value;
 
@@ -457,32 +460,23 @@ const handleUpload = async () => {
           />
                         <div class="upload-settings">
                             <h2 class="h2">Срок хранения</h2>
-                            <div class="selects-list">
-                                <div class="custom-select">
-                                    <div class="select-selected">3</div>
-                                    <div class="select-items select-hide">
-                                        <div class="select-items-list">
-                                            <div data-value="3">3</div>
-                                            <div data-value="6">6</div>
-                                            <div data-value="12">12</div>
-                                            <div data-value="24">24</div>
-                                            <div data-value="48">48</div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="number" id="dateNumber" value=""/>
-                                </div>
-                                <div class="custom-select">
-                                    <div class="select-selected">дней</div>
-                                    <div class="select-items select-hide">
-                                        <div class="select-items-list">
-                                            <div data-value="дней">дней</div>
-                                            <div data-value="недель">недель</div>
-                                            <div data-value="месяцев">месяцев</div>
-                                            <div data-value="лет">лет</div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="date" id="datePeriod" value=""/>
-                                </div>
+                           
+                            <div className="selects-list">
+      <CustomSelect
+        options={['3', '6', '12', '24', '48']}
+        selected={number}
+        setSelected={setNumber}
+        name="number"
+        id="dateNumber"
+      />
+      <CustomSelect
+        options={['дней', 'недель', 'месяцев', 'лет']}
+        selected={period}
+        setSelected={setPeriod}
+        name="date"
+        id="datePeriod"
+      />
+    </div>
                             </div>
                             <div class="checkboxes-list">
                                 <div class="checkbox-item">
