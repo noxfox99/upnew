@@ -546,7 +546,7 @@ if (filesDeleted) {
    </div>
    <div className="modal-body">
     <div className="modal-body-img">
-     <img src="/assets/img/mocks/2.jpg"/>
+     {selectedImage && <img src={selectedImage} alt="Selected" />}
     </div>
     <div className="btn-prev">
      <svg fill="none" height="18" viewbox="0 0 18 18" width="18">
