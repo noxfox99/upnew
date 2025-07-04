@@ -453,7 +453,7 @@ if (filesDeleted) {
         </button>
        </div>
        <div
-    key={idx}
+    key={index}
     onClick={handleImageClick}
     style={{ cursor: 'pointer' }}
   >
