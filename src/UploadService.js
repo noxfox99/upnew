@@ -476,7 +476,6 @@ const handleUpload = async () => {
         name="date"
         id="datePeriod"
       />
-    </div>
                             </div>
                             <div class="checkboxes-list">
                                 <div class="checkbox-item">
