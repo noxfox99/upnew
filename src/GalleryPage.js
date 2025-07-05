@@ -443,7 +443,6 @@ if (filesDeleted) {
       <div className="files-item">
        <div className="file-name">
         <span>
-         Image1longname.jpeg
         </span>
         <button className="btn remove">
          <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
@@ -456,7 +455,7 @@ if (filesDeleted) {
        </div>
        <div
     key={index}
-    onClick={handleImageClick}
+    onClick={() => handleImageClick(url)
     style={{ cursor: 'pointer' }}
   >
         <img src={url}  alt={`Preview ${index}`} />
