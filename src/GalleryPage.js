@@ -25,9 +25,11 @@ const GalleryPage = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 const [isModalActive, setIsModalActive] = useState(false);
 
-  const handleImageClick = () => {
+  const handleImageClick = (url) => {
+  setSelectedImage(url);
   setIsModalActive(true);
 };
+
 const closeModal = () => {
   setIsModalActive(false);
 };
