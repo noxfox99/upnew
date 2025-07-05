@@ -455,7 +455,7 @@ if (filesDeleted) {
        </div>
        <div
     key={index}
-    onClick={() => handleImageClick(url)
+    onClick={() => handleImageClick(url)}
     style={{ cursor: 'pointer' }}
   >
         <img src={url}  alt={`Preview ${index}`} />
