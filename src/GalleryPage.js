@@ -31,7 +31,8 @@ const [isModalActive, setIsModalActive] = useState(false);
 };
 
 const closeModal = () => {
-  setIsModalActive(false);
+   setIsModalActive(false);
+  setSelectedImage(null);
 };
 
   function extractAfterFiles(url) {
@@ -530,7 +531,7 @@ if (filesDeleted) {
    </span>
   </div>
  </footer>
- <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery">
+ <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery"  onClick={closeModal}>
   <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
    <div className="modal-head --b-bottom">
     <span>
