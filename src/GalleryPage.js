@@ -27,16 +27,15 @@ const [isModalActive, setIsModalActive] = useState(false);
 const [activeImage, setActiveImage] = useState(null);
 
   const handleImageClick = (url) => {
-  setSelectedImage(url);
-      setActiveImage(url); // Set image object or URL
+    setSelectedImage(url);
+    setActiveImage(url);
+    setIsModalActive(true);
+  };
 
-  setIsModalActive(true);
-};
-
-const closeModal = () => {
-   setIsModalActive(false);
-  setSelectedImage(null);
-};
+  const closeModal = () => {
+    setIsModalActive(false);
+    setSelectedImage(null);
+  };
 
   function extractAfterFiles(url) {
     return url.split('files/')[1];
@@ -64,7 +63,7 @@ const closePopup = () => setActiveImage(null);
    useEffect(() => {
       const body = document.body;
 
-      const closeAllSelect = (elmnt) => {
+   const closeAllSelect = (elmnt) => {
       document.querySelectorAll('.select-selected').forEach((select) => {
         if (elmnt !== select) {
           select.classList.remove('select-arrow-active');
@@ -468,7 +467,14 @@ if (filesDeleted) {
       </div>
           ))}
       
-     
+       {isModalActive && activeImage && (
+      <div className="modal active" id="imageModal" onClick={closeModal}>
+        <div className="modal-body-img" onClick={(e) => e.stopPropagation()}>
+          <span className="close" data-modal-close="imageModal" onClick={closeModal}>&times;</span>
+          <img src={activeImage} alt="Enlarged" />
+        </div>
+      </div>
+    )}
      </div>
     </div>
    </div>
