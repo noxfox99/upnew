@@ -24,9 +24,12 @@ const GalleryPage = () => {
   const [filesDeleted, setFilesDeleted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 const [isModalActive, setIsModalActive] = useState(false);
+const [activeImage, setActiveImage] = useState(null);
 
   const handleImageClick = (url) => {
   setSelectedImage(url);
+      setActiveImage(url); // Set image object or URL
+
   setIsModalActive(true);
 };
 
@@ -56,6 +59,7 @@ const closeModal = () => {
       }
     }, 3000);
   };
+const closePopup = () => setActiveImage(null);
 
    useEffect(() => {
       const body = document.body;
