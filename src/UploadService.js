@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PinataSDK } from "pinata";
 import QRCode from 'qrcode.react'; // Импортируем компонент QRCode
 import imageCompression from 'browser-image-compression';
+import CustomSelect from './CustomSelect'; // Adjust path if needed
 
 const PINATA_API_KEY = 'b1adb65f27feca2b1cdc';  // Replace with your Infura Project ID
 const PINATA_SECRET_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJlZGE3OTU1ZS01NThhLTQ0YjItYmUwYS0xMmE5NTRhYmYxZGMiLCJlbWFpbCI6InJvaW92ZXJAcHJvdG9uLm1lIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImIxYWRiNjVmMjdmZWNhMmIxY2RjIiwic2NvcGVkS2V5U2VjcmV0IjoiNmUzY2RjNmExNWU1YThhNWUxNTkwMmI5NGUwMWM1MjgyY2U0ODM3ODBhMWY0ZjcwMzQxYzI3NTFjYjVhNTlkZCIsImV4cCI6MTc2NDQxMjU3Nn0.FD15exn56ICeP46SOWpCXkOqpgsR1Evh9Cde9-xnUjI';  // Replace with your Infura Project Secret
@@ -10,6 +11,7 @@ const pinata = new PinataSDK({
   pinataJwt: PINATA_SECRET_API_KEY,
   pinataGateway: "https://files.photobunker.pro/",
 });
+
 const compressAndRemoveMetadata = async (file) => {
   const options = {
     maxSizeMB: 1, // Максимальный размер файла — 1 МБ
@@ -42,7 +44,8 @@ function UploadService() {
   const [filesUploaded, setFilesUploaded] = useState(false);
   const [isdelChecked, setIsdelChecked] = useState(false);
   const [error, setError] = useState(""); // Error message state
-
+  const [number, setNumber] = useState('3');
+  const [period, setPeriod] = useState('дней');
      const handleExpirationChange = (event) => {
     const value = event.target.value;
 
@@ -81,7 +84,28 @@ function UploadService() {
     setExpirationUnit(event.target.value);
     setError(""); // Reset error when unit changes
   };
+const generateOptions = (max) => {
+  return Array.from({ length: max }, (_, i) => String(i + 1));
+};
 
+// choose options based on selected period
+let numberOptions;
+switch (period) {
+  case 'лет':
+    numberOptions = generateOptions(2);
+    break;
+  case 'месяцев':
+    numberOptions = generateOptions(12);
+    break;
+  case 'недель':
+    numberOptions = generateOptions(10);
+    break;
+  case 'дней':
+    numberOptions = generateOptions(30);
+    break;
+  default:
+    numberOptions = ['1']; // fallback
+}
   const getUnitLabel = (unit) => {
     switch (unit) {
       case "h":
@@ -457,32 +481,24 @@ const handleUpload = async () => {
           />
                         <div class="upload-settings">
                             <h2 class="h2">Срок хранения</h2>
-                            <div class="selects-list">
-                                <div class="custom-select">
-                                    <div class="select-selected">3</div>
-                                    <div class="select-items select-hide">
-                                        <div class="select-items-list">
-                                            <div data-value="3">3</div>
-                                            <div data-value="6">6</div>
-                                            <div data-value="12">12</div>
-                                            <div data-value="24">24</div>
-                                            <div data-value="48">48</div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="number" id="dateNumber" value=""/>
-                                </div>
-                                <div class="custom-select">
-                                    <div class="select-selected">дней</div>
-                                    <div class="select-items select-hide">
-                                        <div class="select-items-list">
-                                            <div data-value="дней">дней</div>
-                                            <div data-value="недель">недель</div>
-                                            <div data-value="месяцев">месяцев</div>
-                                            <div data-value="лет">лет</div>
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="date" id="datePeriod" value=""/>
-                                </div>
+                           
+                            <div className="selects-list">
+       <CustomSelect
+  options={numberOptions}
+  selected={number}
+  setSelected={setNumber}
+  name="number"
+  id="dateNumber"
+  unit={period}
+/>
+
+      <CustomSelect
+        options={['дней', 'недель', 'месяцев', 'лет']}
+        selected={period}
+        setSelected={setPeriod}
+        name="date"
+        id="datePeriod"
+      />
                             </div>
                             <div class="checkboxes-list">
                                 <div class="checkbox-item">
@@ -557,7 +573,7 @@ const handleUpload = async () => {
                                 <textarea placeholder="Ваш комментарий">{`https://photobunker.pro/gallery/${encodeURIComponent(galleryJsonUrl)}`}</textarea>
                                 <span class="tip">*Комментарий будет добавлен ко всем загружаемым файлам</span>
                                 <div class="btn-group">
-                                    <a href="{`https://photobunker.pro/gallery/${encodeURIComponent(galleryJsonUrl)}`}" class="btn btn-primary active">
+                                    <a href={`https://photobunker.pro/gallery/${encodeURIComponent(galleryJsonUrl)}`} class="btn btn-primary active">
                                         <svg width="26" height="27" viewBox="0 0 26 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M22.8144 13.305L22.6411 13.0667C22.3377 12.6984 21.9802 12.4059 21.5686 12.1892C21.0161 11.875 20.3877 11.7125 19.7377 11.7125H6.25023C5.60023 11.7125 4.98273 11.875 4.4194 12.1892C3.9969 12.4167 3.61773 12.7309 3.30357 13.1209C2.68607 13.9117 2.39357 14.8867 2.49107 15.8617L2.8919 20.9209C3.03273 22.4484 3.2169 24.3334 6.65107 24.3334H19.3477C22.7819 24.3334 22.9552 22.4484 23.1069 20.91L23.5077 15.8725C23.6052 14.9625 23.3669 14.0525 22.8144 13.305ZM15.5886 19.285H10.3994C9.9769 19.285 9.64107 18.9384 9.64107 18.5267C9.64107 18.115 9.9769 17.7684 10.3994 17.7684H15.5886C16.0111 17.7684 16.3469 18.115 16.3469 18.5267C16.3469 18.9492 16.0111 19.285 15.5886 19.285Z" fill="#2E323A"/>
                                             <path d="M22.2817 9.88348C22.3165 10.2666 21.9018 10.5235 21.5388 10.3963C20.9717 10.1977 20.3731 10.0984 19.7496 10.0984H6.25128C5.62379 10.0984 5.00636 10.204 4.43328 10.405C4.07452 10.5308 3.66211 10.2834 3.66211 9.90324V7.71502C3.66211 3.84752 4.84294 2.66669 8.71044 2.66669H9.98878C11.5379 2.66669 12.0254 3.16502 12.6538 3.97752L13.9538 5.71085C14.2246 6.07919 14.2354 6.10085 14.7121 6.10085H17.2904C20.7049 6.10085 22.0217 7.02308 22.2817 9.88348Z" fill="#2E323A"/>

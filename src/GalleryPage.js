@@ -1,3 +1,4 @@
+// GalleryPage.js
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { PinataSDK } from "pinata";
@@ -11,198 +12,236 @@ const pinata = new PinataSDK({
 });
 //bafkreifye7mrysnirozj3yvho3xrhtjrrl26jxn5f6lmpcjedsjm3k7gee
 const GalleryPage = () => {
+  const { bunkerId } = useParams();
   const { search } = useLocation();
   const params = new URLSearchParams(search);
-  const jsonUrl = params.get('bunker');
+  const jsonUrl = params.get('x');
   const [imageUrls, setImageUrls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [descrx, setDescrx] = useState([]);
   const [Noticex, setNoticex] = useState([]);
-  const [loadingx, setLoadingx] = useState(true); 
-  const [filesDeleted, setFilesDeleted] = useState(false); // New state to hide all content if files are missing
+  const [filesDeleted, setFilesDeleted] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+const [isModalActive, setIsModalActive] = useState(false);
+const [activeImage, setActiveImage] = useState(null);
+
+  const handleImageClick = (url) => {
+    setSelectedImage(url);
+    setActiveImage(url);
+    setIsModalActive(true);
+  };
+
+  const closeModal = () => {
+    setIsModalActive(false);
+    setSelectedImage(null);
+  };
 
   function extractAfterFiles(url) {
     return url.split('files/')[1];
-}
-
-   const deleteFiles = async (ids) => {
-    try {
-      console.log(ids);
-      const deletedFiles = await pinata.files.delete(ids);
-      console.log('Deleted files:', deletedFiles);
-    } catch (error) {
-      console.error('Error deleting files:', error);
-    }
-  };
-
-const deleteFilesWithDelay = async (ids, delay) => {
-  try {
-    console.log(`Waiting ${delay}ms before deleting files...`);
-    await new Promise((resolve) => setTimeout(resolve, delay)); // Wait for the specified delay
-    const deletedFiles = await pinata.files.delete(ids);
-    console.log("Deleted files:", deletedFiles);
-  } catch (error) {
-    console.error("Error deleting files:", error);
   }
-};
-	
- const handleImageError = (event) => {
-  // Add a timeout to allow for delayed responses
-  const img = event.target;
-  
-  setTimeout(() => {
-    if (!img.complete || img.naturalWidth === 0) {
-      console.error("Image failed to load:", img.src);
-      setFilesDeleted(true);
-    }
-  }, 5000); // Wait 5 seconds before marking it as failed
-};
-  const checkImageExists = async (url) => {
+
+  const deleteFilesWithDelay = async (ids, delay) => {
     try {
-      const response = await fetch(url, { method: "HEAD" });
-      return response.ok; // Returns true if the image exists
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      await pinata.files.delete(ids);
     } catch (error) {
-      console.error("Error checking image:", error);
-      return false;
+      console.error("Error deleting files:", error);
     }
   };
-	 
- // Function to unpin file from Pinata
 
-  
-  useEffect(() => {
-     const timer = setTimeout(() => {
-      setLoading(false);
+  const handleImageError = (event) => {
+    const img = event.target;
+    setTimeout(() => {
+      if (!img.complete || img.naturalWidth === 0) {
+        setFilesDeleted(true);
+      }
     }, 3000);
-    // Fetch the JSON data from the given IPFS URL
+  };
+const closePopup = () => setActiveImage(null);
+
+   useEffect(() => {
+      const body = document.body;
+
+   const closeAllSelect = (elmnt) => {
+      document.querySelectorAll('.select-selected').forEach((select) => {
+        if (elmnt !== select) {
+          select.classList.remove('select-arrow-active');
+        }
+      });
+
+      document.querySelectorAll('.select-items').forEach((items) => {
+        items.classList.add('select-hide');
+      });
+    };
+
+        const handleDropdowns = () => {
+      document.querySelectorAll('.custom-select').forEach((customSelect) => {
+        const selectSelected = customSelect.querySelector('.select-selected');
+        const selectItems = customSelect.querySelector('.select-items');
+        const selectItemsList = customSelect.querySelector('.select-items-list');
+        const hiddenInput = customSelect.querySelector('input[type="hidden"]');
+
+        if (!selectSelected || !selectItems || !selectItemsList || !hiddenInput) return;
+
+        selectSelected.addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeAllSelect(this);
+          this.classList.toggle('select-arrow-active');
+          selectItems.classList.toggle('select-hide');
+        });
+
+        selectItemsList.querySelectorAll('div').forEach((item) => {
+          item.addEventListener('click', function () {
+            const selectedValue = this.getAttribute('data-value');
+            const selectedText = this.textContent;
+
+            selectSelected.textContent = selectedText;
+            hiddenInput.value = selectedValue;
+
+            selectItemsList.querySelectorAll('.same-as-selected').forEach((el) => {
+              el.classList.remove('same-as-selected');
+            });
+
+            this.classList.add('same-as-selected');
+            selectSelected.click();
+          });
+        });
+
+        // Initialize with first option
+        const firstItem = selectItemsList.querySelector('div');
+        if (firstItem) {
+          const defaultValue = firstItem.getAttribute('data-value');
+          const defaultText = firstItem.textContent;
+          selectSelected.textContent = defaultText;
+          hiddenInput.value = defaultValue;
+          firstItem.classList.add('same-as-selected');
+        }
+      });
+    };
+
+    const handleModals = () => {
+      document.querySelectorAll('[data-modal]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const modalId = button.getAttribute('data-modal');
+          const modal = document.getElementById(modalId);
+          const imgSrc = button.getAttribute('data-img');
+          const img = modal?.querySelector('.modal-body-img img');
+
+          if (img && imgSrc) img.src = imgSrc;
+
+          modal?.classList.add('active');
+          body.style.overflow = 'hidden';
+        });
+      });
+
+      document.querySelectorAll('.close').forEach((button) => {
+        button.addEventListener('click', () => {
+          const modalId = button.getAttribute('data-modal-close');
+          const modal = document.getElementById(modalId);
+          modal?.classList.remove('active');
+          body.style.overflow = 'auto';
+        });
+      });
+
+      document.querySelectorAll('.modal').forEach((modal) => {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) {
+            modal.classList.remove('active');
+            body.style.overflow = 'auto';
+          }
+        });
+      });
+    };
+
+    const handleDocumentClick = () => {
+      document.addEventListener('click', closeAllSelect);
+    };
+
     const fetchData = async () => {
       try {
-        //setLoadingx(true);
-     //  console.log('start');
-     //   console.log(bunkerId)
-      //  const { dataz, contentTypex } = await pinata.gateways.get(jsonUrl);
-      //  console.log('xxxxx');
-      //  console.log(dataz);
-    
+        const urlx = await pinata.gateways.createSignedURL({
+          cid: bunkerId,
+          expires: 3000,
+        });
 
-        //const datac = await pinata.gateways.get("bafkreibm6jg3ux5qumhcn2b3flc3tyu6dmlb4xa7u5bf44yegnrjhc4yeq");
-      const urlx = await pinata.gateways.createSignedURL({
-  cid: bunkerId,
-  expires: 3000, // Number of seconds link is valid for
-});
-
-  //console.log(urlx);
-  //console.log('bbbbb');
-
-  const corsProxy = 'https://api.allorigins.win/get?url=';
-  const proxiedUrl = `${corsProxy}${encodeURIComponent(urlx)}`;
-  const proxyUrl = `https://photobunker.pro/proxy?url=${encodeURIComponent(urlx)}`;
-
- //console.log(proxyUrl);
- 
+        const proxyUrl = `https://photobunker.pro/proxy?url=${encodeURIComponent(urlx)}`;
         const response = await fetch(proxyUrl);
-        const datax = await response.json();
-       // console.log('vvvvv');
-      //  console.log(datax);
+
         if (!response.ok) throw new Error('Network response was not OK');
-    //    console.log('ggggg');
-        //console.log(response);
         const contentType = response.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
           throw new Error("Received data is not in JSON format");
         }
 
-        const data = datax;
-        //console.log(data);
-        //setImageUrls(data.images.map(image => image.url));
-    
-    async function updateImageUrls(data) {
-    const imageUrls = await Promise.all(
-        data.images.map(async (image) => {
-            const cid = extractAfterFiles(image.url); // Extract the CID from image URL
-            const signedUrl = await pinata.gateways.createSignedURL({
-                cid: cid,
-                expires: 3000, // Number of seconds link is valid for
+        const data = await response.json();
+
+        const imageUrls = await Promise.all(
+          data.images.map(async (image) => {
+            const cid = extractAfterFiles(image.url);
+            const url = await pinata.gateways.createSignedURL({
+              cid: cid,
+              expires: 3000,
             });
-            return signedUrl;
-        })
-    );
-    setImageUrls(imageUrls); // Set the array of signed URLs
-        const imageUrlsx = await Promise.all(
-        data.images.map(async (imagex) => {
-            const cidx = extractAfterFiles(imagex.url); // Extract the CID from image URL
-	    
-     if (data.timex === 1) {
-	      
-              //setNoticex(data.timex);
-              if (data.timex === 1 && data.xec) {
+            return url;
+          })
+        );
+
+        setImageUrls(imageUrls);
+
+        if (data.timex === 1 && data.xec) {
           const idsToDelete = data.xec.map((entry) => entry.id);
-          setNoticex(data.timex); // Display notice
-          await deleteFilesWithDelay(idsToDelete,4000); // Call delete function
+          setNoticex(data.timex);
+          await deleteFilesWithDelay(idsToDelete, 4000);
         }
-            }
-        })
-    );
-}
-setDescrx(data.description);
-updateImageUrls(data);
+
+        setDescrx(data.description);
       } catch (error) {
-        //console.error('Error fetching gallery data:', error);
-      //  setError(error.message);
+        console.error(error);
+        setError(error.message);
       } finally {
         setLoading(false);
-       // setLoadingx(false);
       }
     };
-//return () => clearTimeout(timer); // Cleanup timer
     fetchData();
-    setLoadingx(false);
+    handleDropdowns();
+    handleModals();
+    handleDocumentClick();
   }, [jsonUrl]);
 
+
 if (filesDeleted) {
-  // Show this notice and hide all other content if any image fails to load
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
-      <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-800 text-white py-4 px-8 rounded-lg shadow-lg mb-6">
-        Файлы были удалены и больше недоступны.
-      </h1>
-      <button
-        onClick={() => (window.location.href = "/")}
-        className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300"
-      >
-        Вернуться на главную страницу
-      </button>
-    </div>
-  );
-}
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-red-800 text-white py-4 px-8 rounded-lg shadow-lg mb-6">
+          Файлы были удалены и больше недоступны.
+        </h1>
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-purple-500 hover:to-blue-500 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300"
+        >
+          Вернуться на главную страницу
+        </button>
+      </div>
+    );
+  }
 
   if (error) {
     return <div className="text-center text-red-500">Error: {error}</div>;
   }
-  // Loader component
   const Loader = () => (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white">
       <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-lg shadow-lg">
-        <span className="text-2xl font-semibold">PhotoBunker</span>
+        <span className="text-2xl font-semibold">X</span>
         <div className="flex space-x-1">
-          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "0s" }}></span>
-          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "1.2s" }}></span>
-          <span className="w-2 h-2 bg-white rounded-full animate-bounce" style={{ animationDelay: "1.4s" }}></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
+          <span className="w-2 h-2 bg-white rounded-full animate-bounce"></span>
         </div>
       </div>
       <p className="mt-4 text-sm">Загрузка... Ожидайте</p>
     </div>
-  );
-  const openPopup = (url) => {
-    setSelectedImage(url);
-  };
-
-  const closePopup = () => {
-    setSelectedImage(null);
-  };
-  
+  );  
   return (
     <div>
  <header>
@@ -402,15 +441,12 @@ if (filesDeleted) {
       </div>
      </div>
      <p>
-      Загружаю сюда рабочие файлы для предварительного ознакомления. Это черновой вариант, возможны изменения и доработки. Структура и названия файлов могут отличаться от финального вида. Все материалы предназначены для внутреннего использования и обсуждения.
-     </p>
+{descrx}     </p>
      <div className="files-list">
-         {imageUrls.map((url, index) => (
+        {imageUrls.map((url, index) => (
       <div className="files-item">
        <div className="file-name">
-        <span>
-         Image1longname.jpeg
-        </span>
+        <span></span>
         <button className="btn remove">
          <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
           <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -420,22 +456,23 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div className="file-img" data-img="{url}" data-modal="modal-gallery">
-          <img
-                    src={url}
-                    alt={`Gallery Image ${index + 1}`}
-                    onClick={() => openPopup(url)}
-                    onError={handleImageError}
-                  />
-       </div>
+       <div className="file-img"
+    key={index}
+    onClick={() => handleImageClick(url)}
+    style={{ cursor: 'pointer' }}
+  >
+        <img src={url}  alt={`Preview ${index}`} />
       </div>
-   ))}
+      </div>
+          ))}
+      
     
      </div>
     </div>
    </div>
   </div>
  </main>
+                
  <footer>
   <div className="footer-top">
    <div className="logo">
@@ -492,20 +529,16 @@ if (filesDeleted) {
     Бесплатное хранилище нового поколения для ваших медиафайлов
    </span>
    <span>
-    Разработка сайта: Yoyo Agency
-   </span>
-   <span>
     All rights reserved
    </span>
   </div>
  </footer>
- <div className="modal" id="modal-gallery">
-  <div className="modal-content card">
+            {isModalActive && activeImage && (
+ <div className="modal active"  id="modal-gallery" onClick={closeModal}>
+  <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
    <div className="modal-head --b-bottom">
-    <span>
-     Image1.jpeg
-    </span>
-    <button className="btn close" data-modal-close="modal-gallery">
+    <span></span>
+    <button className="btn close" data-modal-close="modal-gallery" onClick={closeModal}>
      <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
       <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       </path>
@@ -514,530 +547,15 @@ if (filesDeleted) {
      </svg>
     </button>
    </div>
-   <div className="modal-body">
+   <div className="modal-body" >
     <div className="modal-body-img">
-     <img src="/assets/img/mocks/2.jpg"/>
-    </div>
-    <div className="btn-prev">
-     <svg fill="none" height="18" viewbox="0 0 18 18" width="18">
-      <path clip-rule="evenodd" d="M11.6467 2.66231C11.8663 2.88198 11.8663 3.23814 11.6467 3.45781L6.75665 8.34781C6.39882 8.70564 6.39882 9.29448 6.75665 9.65231L11.6467 14.5423C11.8663 14.762 11.8663 15.1181 11.6467 15.3378C11.427 15.5575 11.0708 15.5575 10.8512 15.3378L5.96116 10.4478C5.16399 9.65064 5.16399 8.34948 5.96116 7.55231L10.8512 2.66231C11.0708 2.44264 11.427 2.44264 11.6467 2.66231Z" fill="#F5F4F3" fill-rule="evenodd">
-      </path>
-     </svg>
-    </div>
-    <div className="btn-next">
-     <svg fill="none" height="18" viewbox="0 0 18 18" width="18">
-      <path clip-rule="evenodd" d="M6.28585 2.66225C6.50552 2.44258 6.86167 2.44258 7.08134 2.66225L11.9713 7.55225C12.7685 8.34942 12.7685 9.65058 11.9713 10.4477L7.08134 15.3377C6.86167 15.5574 6.50552 15.5574 6.28585 15.3377C6.06618 15.1181 6.06618 14.7619 6.28585 14.5423L11.1758 9.65225C11.5337 9.29442 11.5337 8.70558 11.1758 8.34775L6.28585 3.45775C6.06618 3.23808 6.06618 2.88192 6.28585 2.66225Z" fill="#F5F4F3" fill-rule="evenodd">
-      </path>
-     </svg>
-    </div>
+    <img src={selectedImage} alt="Selected" />
+    </div> 
    </div>
+            
   </div>
  </div>
- <div className="modal" id="modal-qr">
-  <div className="modal-content card">
-   <div className="modal-head --b-bottom">
-    Скачать QR-код
-    <button className="btn close" data-modal-close="modal-qr">
-     <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
-      <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-      </path>
-      <path d="M4.00013 19.9999L20 4" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-      </path>
-     </svg>
-    </button>
-   </div>
-   <div className="modal-body">
-    <div className="modal-qr">
-     <svg fill="none" height="300" viewbox="0 0 301 300" width="301">
-      <g clip-path="url(#clip0_2029_4288)">
-       <path d="M96.5 0V12H108.5V0L102.5 3.375L96.5 0Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 0V12H144.5V0L138.5 3.375L132.5 0Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 0H156.5V12H168.5V0Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 0H168.5V12H180.5L177.125 6L180.5 0Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 12H96.5V24H108.5V12Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 12H108.5V24H120.5V12Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 24V12H132.5V24L138.5 20.625L144.5 24Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 12H156.5V24H168.5V12Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 12V24H204.5V12L198.5 15.375L192.5 12Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 24H96.5V36H108.5V24Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 24H108.5V36H120.5V24Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 36H156.5V24H144.5L147.875 30L144.5 36Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 24H156.5V36H168.5V24Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 24H168.5V36H180.5L177.125 30L180.5 24Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 24H192.5V36H204.5V24Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 36H108.5V48H120.5V36Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 36H120.5V48H132.5V36Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 36H132.5V48H144.5L141.125 42L144.5 36Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 48V36H156.5V48L162.5 44.625L168.5 48Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 48H192.5V36H180.5L183.875 42L180.5 48Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 36H192.5V48H204.5V36Z" fill="#C4ED31">
-       </path>
-       <path d="M96.5 60H108.5V48H96.5L99.875 54L96.5 60Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 48H108.5V60H120.5V48Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 48H192.5V60H204.5V48Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 72V60H108.5V72L114.5 68.625L120.5 72Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 60H144.5V72H156.5V60Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 60H156.5V72H168.5L165.125 66L168.5 60Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 60H192.5V72H204.5V60Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 72H96.5V84H108.5V72Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 72V84H132.5V72L126.5 75.375L120.5 72Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 84V72H144.5V84L150.5 80.625L156.5 84Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 72V84H180.5V72L174.5 75.375L168.5 72Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 72H192.5V84H204.5V72Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 96V84H120.5V96L126.5 92.625L132.5 96Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 96H168.5V84H156.5L159.875 90L156.5 96Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 84H168.5V96H180.5V84Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 84H180.5V96H192.5V84Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 84H192.5V96H204.5V84Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 96H0.5V108H12.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M48.5 96H36.5V108H48.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M60.5 96H48.5V108H60.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M72.5 96H60.5V108H72.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M84.5 96H72.5V108H84.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M96.5 96H84.5V108H96.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 96H96.5V108H108.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 96H108.5V108H120.5L117.125 102L120.5 96Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 96H192.5V108H204.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 96H204.5V108H216.5L213.125 102L216.5 96Z" fill="#C4ED31">
-       </path>
-       <path d="M240.5 96V108H252.5V96L246.5 99.375L240.5 96Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 96H264.5V108H276.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 96H276.5V108H288.5V96Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 96H288.5V108H300.5L297.125 102L300.5 96Z" fill="#C4ED31">
-       </path>
-       <path d="M48.5 120V108H36.5V120L42.5 116.625L48.5 120Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 120H132.5V108H120.5L123.875 114L120.5 120Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 108H132.5V120H144.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 108H144.5V120H156.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 108H156.5V120H168.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 108H168.5V120H180.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 108H180.5V120H192.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 120H240.5V108H228.5L231.875 114L228.5 120Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 108H240.5V120H252.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 108H252.5V120H264.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 108H264.5V120H276.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 108H276.5V120H288.5V108Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 132H24.5V120H12.5L15.875 126L12.5 132Z" fill="#C4ED31">
-       </path>
-       <path d="M36.5 120H24.5V132H36.5L33.125 126L36.5 120Z" fill="#C4ED31">
-       </path>
-       <path d="M84.5 120H72.5V132H84.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 120H96.5V132H108.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 120H144.5V132H156.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 120H156.5V132H168.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 120H180.5V132H192.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 120H192.5V132H204.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 120H204.5V132H216.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 120H240.5V132H252.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 120H252.5V132H264.5V120Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 120V132H300.5V120L294.5 123.375L288.5 120Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 132H0.5V144H12.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M36.5 144H48.5V132H36.5L39.875 138L36.5 144Z" fill="#C4ED31">
-       </path>
-       <path d="M60.5 132H48.5V144H60.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M72.5 132H60.5V144H72.5L69.125 138L72.5 132Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 132H108.5V144H120.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 144H144.5V132H132.5L135.875 138L132.5 144Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 132H144.5V144H156.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 132H204.5V144H216.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 132H216.5V144H228.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 132H252.5V144H264.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 132H264.5V144H276.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 132H276.5V144H288.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 132H288.5V144H300.5V132Z" fill="#C4ED31">
-       </path>
-       <path d="M24.5 144H12.5V156H24.5V144Z" fill="#C4ED31">
-       </path>
-       <path d="M36.5 144H24.5V156H36.5L33.125 150L36.5 144Z" fill="#C4ED31">
-       </path>
-       <path d="M60.5 156V144H48.5V156L54.5 152.625L60.5 156Z" fill="#C4ED31">
-       </path>
-       <path d="M84.5 144H72.5V156H84.5V144Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 144V156H132.5V144L126.5 147.375L120.5 144Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 144V156H192.5V144L186.5 147.375L180.5 144Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 156V144H216.5V156L222.5 152.625L228.5 156Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 156V144H288.5V156L294.5 152.625L300.5 156Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 156H0.5V168H12.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M24.5 156H12.5V168H24.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M96.5 156H84.5V168H96.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 156H108.5V168H120.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 156H120.5V168H132.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 168H156.5V156H144.5L147.875 162L144.5 168Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 156H156.5V168H168.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 156H180.5V168H192.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 156H192.5V168H204.5V156Z" fill="#C4ED31">
-       </path>
-       <path d="M240.5 156V168H252.5V156L246.5 159.375L240.5 156Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 156V168H288.5V156L282.5 159.375L276.5 156Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 168H0.5V180H12.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M24.5 168H12.5V180H24.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M36.5 180H48.5V168H36.5L39.875 174L36.5 180Z" fill="#C4ED31">
-       </path>
-       <path d="M60.5 168H48.5V180H60.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M72.5 168H60.5V180H72.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M84.5 168H72.5V180H84.5L81.125 174L84.5 168Z" fill="#C4ED31">
-       </path>
-       <path d="M96.5 180H108.5V168H96.5L99.875 174L96.5 180Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 168H108.5V180H120.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 180V168H156.5V180L162.5 176.625L168.5 180Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 168H180.5V180H192.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 168H192.5V180H204.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 168H204.5V180H216.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 168H240.5V180H252.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 168H252.5V180H264.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 168H264.5V180H276.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 168H276.5V180H288.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 168H288.5V180H300.5V168Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 180H0.5V192H12.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M72.5 180H60.5V192H72.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 192V180H108.5V192L114.5 188.625L120.5 192Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 180V192H156.5V180L150.5 183.375L144.5 180Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 192H180.5V180H168.5L171.875 186L168.5 192Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 180H180.5V192H192.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 180H192.5V192H204.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 180H204.5V192H216.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 180V192H240.5V180L234.5 183.375L228.5 180Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 180H252.5V192H264.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 180H264.5V192H276.5V180Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 192V180H288.5V192L294.5 188.625L300.5 192Z" fill="#C4ED31">
-       </path>
-       <path d="M12.5 204V192H0.5V204L6.5 200.625L12.5 204Z" fill="#C4ED31">
-       </path>
-       <path d="M48.5 204H60.5V192H48.5L51.875 198L48.5 204Z" fill="#C4ED31">
-       </path>
-       <path d="M72.5 192H60.5V204H72.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M84.5 192H72.5V204H84.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M96.5 192H84.5V204H96.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 192H96.5V204H108.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 192H132.5V204H144.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 192H144.5V204H156.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 192H156.5V204H168.5L165.125 198L168.5 192Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 192H180.5V204H192.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 192H192.5V204H204.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 192H204.5V204H216.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 192H216.5V204H228.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M240.5 192H228.5V204H240.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 192H240.5V204H252.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 192H264.5V204H276.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 192H276.5V204H288.5V192Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 204H96.5V216H108.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 204H108.5V216H120.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 204H120.5V216H132.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 204H132.5V216H144.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 204V216H180.5V204L174.5 207.375L168.5 204Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 204H192.5V216H204.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 204H240.5V216H252.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 204H264.5V216H276.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 204H276.5V216H288.5V204Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 216H96.5V228H108.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 216H108.5V228H120.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 216H144.5V228H156.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 216H168.5V228H180.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 216H192.5V228H204.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 216H216.5V228H228.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 216H240.5V228H252.5V216Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 216V228H300.5V216L294.5 219.375L288.5 216Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 228H96.5V240H108.5V228Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 228V240H144.5V228L138.5 231.375L132.5 228Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 240H168.5V228H156.5L159.875 234L156.5 240Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 228H168.5V240H180.5V228Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 228H180.5V240H192.5V228Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 228H192.5V240H204.5V228Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 228H240.5V240H252.5V228Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 240V228H288.5V240L294.5 236.625L300.5 240Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 240H96.5V252H108.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 240H108.5V252H120.5L117.125 246L120.5 240Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 240H132.5V252H144.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 240H144.5V252H156.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 240H168.5V252H180.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 240H180.5V252H192.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 240H192.5V252H204.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 240H204.5V252H216.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 240H216.5V252H228.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M240.5 240H228.5V252H240.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 240H240.5V252H252.5V240Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 264V252H96.5V264L102.5 260.625L108.5 264Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 252H120.5V264H132.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 252H144.5V264H156.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 252H156.5V264H168.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 252H168.5V264H180.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 252H180.5V264H192.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 252H204.5V264H216.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 252H216.5V264H228.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 252H276.5V264H288.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 252H288.5V264H300.5V252Z" fill="#C4ED31">
-       </path>
-       <path d="M120.5 264H108.5V276H120.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M144.5 264H132.5V276H144.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 276V264H156.5V276L162.5 272.625L168.5 276Z" fill="#C4ED31">
-       </path>
-       <path d="M204.5 264H192.5V276H204.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 264H240.5V276H252.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 264H252.5V276H264.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 264H264.5V276H276.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 264H276.5V276H288.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 264H288.5V276H300.5V264Z" fill="#C4ED31">
-       </path>
-       <path d="M168.5 276V288H180.5V276L174.5 279.375L168.5 276Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 276H216.5V288H228.5V276Z" fill="#C4ED31">
-       </path>
-       <path d="M240.5 276H228.5V288H240.5V276Z" fill="#C4ED31">
-       </path>
-       <path d="M252.5 276H240.5V288H252.5V276Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 276H264.5V288H276.5V276Z" fill="#C4ED31">
-       </path>
-       <path d="M288.5 276H276.5V288H288.5V276Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 276H288.5V288H300.5V276Z" fill="#C4ED31">
-       </path>
-       <path d="M108.5 288H96.5V300H108.5V288Z" fill="#C4ED31">
-       </path>
-       <path d="M132.5 288H120.5V300H132.5V288Z" fill="#C4ED31">
-       </path>
-       <path d="M156.5 288H144.5V300H156.5V288Z" fill="#C4ED31">
-       </path>
-       <path d="M180.5 300V288H168.5V300L174.5 296.625L180.5 300Z" fill="#C4ED31">
-       </path>
-       <path d="M192.5 300H204.5V288H192.5L195.875 294L192.5 300Z" fill="#C4ED31">
-       </path>
-       <path d="M216.5 288H204.5V300H216.5V288Z" fill="#C4ED31">
-       </path>
-       <path d="M228.5 288H216.5V300H228.5V288Z" fill="#C4ED31">
-       </path>
-       <path d="M264.5 288H252.5V300H264.5V288Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 300V288H288.5V300L294.5 296.625L300.5 300Z" fill="#C4ED31">
-       </path>
-       <path d="M0.5 55.6256V28.35C0.5 12.7184 13.3688 0 29.1784 0H55.8224C71.6312 0 84.5 12.7184 84.5 28.35V84L29.1784 83.9832C13.3688 83.9832 0.5 71.2656 0.5 55.6256ZM13.1 55.6256C13.1 64.3146 20.3122 71.384 29.1818 71.384L71.9 71.3966V28.35C71.9 19.6652 64.6878 12.6 55.8224 12.6H29.1784C20.3122 12.6 13.1 19.6652 13.1 28.35V55.6256Z" fill="#C4ED31">
-       </path>
-       <path d="M300.5 55.6256V28.35C300.5 12.7184 287.631 0 271.822 0H245.178C229.369 0 216.5 12.7184 216.5 28.35V84L271.822 83.9832C287.631 83.9832 300.5 71.2656 300.5 55.6256ZM287.9 55.6256C287.9 64.3146 280.688 71.384 271.818 71.384L229.1 71.3966V28.35C229.1 19.6652 236.312 12.6 245.178 12.6H271.822C280.688 12.6 287.9 19.6652 287.9 28.35V55.6256Z" fill="#C4ED31">
-       </path>
-       <path d="M0.5 244.374V271.65C0.5 287.282 13.3688 300 29.1784 300H55.8224C71.6312 300 84.5 287.282 84.5 271.65V216L29.1784 216.017C13.3688 216.017 0.5 228.734 0.5 244.374ZM13.1 244.374C13.1 235.685 20.3122 228.616 29.1818 228.616L71.9 228.603V271.65C71.9 280.335 64.6878 287.4 55.8224 287.4H29.1784C20.3122 287.4 13.1 280.335 13.1 271.65V244.374Z" fill="#C4ED31">
-       </path>
-       <path d="M24.5 50.2004V33.7902C24.5 28.3931 28.9626 24 34.4468 24H50.5532C56.0371 24 60.5 28.3931 60.5 33.7902V60L34.4468 59.9849C28.9626 59.9849 24.5 55.5976 24.5 50.2004Z" fill="#C4ED31">
-       </path>
-       <path d="M276.5 50.2004V33.7902C276.5 28.3931 272.037 24 266.553 24H250.447C244.963 24 240.5 28.3931 240.5 33.7902V60L266.553 59.9849C272.037 59.9849 276.5 55.5976 276.5 50.2004Z" fill="#C4ED31">
-       </path>
-       <path d="M24.5 249.8V266.21C24.5 271.607 28.9626 276 34.4468 276H50.5532C56.0371 276 60.5 271.607 60.5 266.21V240L34.4468 240.015C28.9626 240.015 24.5 244.402 24.5 249.8Z" fill="#C4ED31">
-       </path>
-      </g>
-      <defs>
-       <clippath id="clip0_2029_4288">
-        <rect fill="white" height="300" transform="translate(0.5)" width="300">
-        </rect>
-       </clippath>
-      </defs>
-     </svg>
-    </div>
-    <div className="btn-group">
-     <button className="btn btn-secondary">
-      PNG
-     </button>
-     <button className="btn btn-secondary">
-      SVG
-     </button>
-     <button className="btn btn-secondary">
-      EPS
-     </button>
-     <button className="btn btn-secondary">
-      PDF
-     </button>
-    </div>
-   </div>
-  </div>
- </div>
+ )}
        </div>
 );;
 };
