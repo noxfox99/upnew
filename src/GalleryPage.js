@@ -466,14 +466,7 @@ if (filesDeleted) {
       </div>
           ))}
       
-       {isModalActive && activeImage && (
-      <div className="modal active" id="imageModal" onClick={closeModal}>
-        <div className="modal-body-img" onClick={(e) => e.stopPropagation()}>
-          <span className="close" data-modal-close="imageModal" onClick={closeModal}>&times;</span>
-          <img src={activeImage} alt="Enlarged" />
-        </div>
-      </div>
-    )}
+    
      </div>
     </div>
    </div>
