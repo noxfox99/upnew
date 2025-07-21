@@ -446,8 +446,7 @@ if (filesDeleted) {
         {imageUrls.map((url, index) => (
       <div className="files-item">
        <div className="file-name">
-        <span>
-        </span>
+        <span></span>
         <button className="btn remove">
          <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
           <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
@@ -457,7 +456,7 @@ if (filesDeleted) {
          </svg>
         </button>
        </div>
-       <div
+       <div className="file-img"
     key={index}
     onClick={() => handleImageClick(url)}
     style={{ cursor: 'pointer' }}
