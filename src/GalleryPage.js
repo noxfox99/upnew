@@ -533,7 +533,8 @@ if (filesDeleted) {
    </span>
   </div>
  </footer>
- <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery"  onClick={closePopup}>
+            {isModalActive && activeImage && (
+ <div className="modal active"  id="imageModal" onClick={closeModal}>
   <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
    <div className="modal-head --b-bottom">
     <span></span>
@@ -549,23 +550,12 @@ if (filesDeleted) {
    <div className="modal-body" >
     <div className="modal-body-img">
     <img src={selectedImage} alt="Selected" />
-    </div>
-    <div className="btn-prev">
-     <svg fill="none" height="18" viewbox="0 0 18 18" width="18">
-      <path clip-rule="evenodd" d="M11.6467 2.66231C11.8663 2.88198 11.8663 3.23814 11.6467 3.45781L6.75665 8.34781C6.39882 8.70564 6.39882 9.29448 6.75665 9.65231L11.6467 14.5423C11.8663 14.762 11.8663 15.1181 11.6467 15.3378C11.427 15.5575 11.0708 15.5575 10.8512 15.3378L5.96116 10.4478C5.16399 9.65064 5.16399 8.34948 5.96116 7.55231L10.8512 2.66231C11.0708 2.44264 11.427 2.44264 11.6467 2.66231Z" fill="#F5F4F3" fill-rule="evenodd">
-      </path>
-     </svg>
-    </div>
-    <div className="btn-next">
-     <svg fill="none" height="18" viewbox="0 0 18 18" width="18">
-      <path clip-rule="evenodd" d="M6.28585 2.66225C6.50552 2.44258 6.86167 2.44258 7.08134 2.66225L11.9713 7.55225C12.7685 8.34942 12.7685 9.65058 11.9713 10.4477L7.08134 15.3377C6.86167 15.5574 6.50552 15.5574 6.28585 15.3377C6.06618 15.1181 6.06618 14.7619 6.28585 14.5423L11.1758 9.65225C11.5337 9.29442 11.5337 8.70558 11.1758 8.34775L6.28585 3.45775C6.06618 3.23808 6.06618 2.88192 6.28585 2.66225Z" fill="#F5F4F3" fill-rule="evenodd">
-      </path>
-     </svg>
-    </div>
+    </div> 
    </div>
+            
   </div>
  </div>
-
+ )}
        </div>
 );;
 };
