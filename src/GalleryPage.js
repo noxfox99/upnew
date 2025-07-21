@@ -534,7 +534,7 @@ if (filesDeleted) {
   </div>
  </footer>
             {isModalActive && activeImage && (
- <div className="modal active"  id="imageModal" onClick={closeModal}>
+ <div className="modal active"  id="modal-gallery" onClick={closeModal}>
   <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
    <div className="modal-head --b-bottom">
     <span></span>
