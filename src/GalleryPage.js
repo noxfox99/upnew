@@ -533,7 +533,7 @@ if (filesDeleted) {
    </span>
   </div>
  </footer>
- <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery"  onClick={closeModal}>
+ <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery"  onClick={closePopup}>
   <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
    <div className="modal-head --b-bottom">
     <span></span>
@@ -569,7 +569,7 @@ if (filesDeleted) {
   <div className="modal-content card">
    <div className="modal-head --b-bottom">
     Скачать QR-код
-    <button className="btn close" data-modal-close="modal-qr" onClick={closeModal} >
+    <button className="btn close" data-modal-close="modal-qr" onClick={closePopup} >
      <svg fill="none" height="24" viewbox="0 0 24 24" width="24">
       <path d="M4 4L19.9999 19.9999" stroke="#F5F4F3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
       </path>
