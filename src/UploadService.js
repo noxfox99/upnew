@@ -85,6 +85,28 @@ function UploadService() {
     setError(""); // Reset error when unit changes
   };
 
+  const generateOptions = (max) => {
+  return Array.from({ length: max }, (_, i) => String(i + 1));
+};
+
+// choose options based on selected period
+let numberOptions;
+switch (period) {
+  case 'лет':
+    numberOptions = generateOptions(2);
+    break;
+  case 'месяцев':
+    numberOptions = generateOptions(12);
+    break;
+  case 'недель':
+    numberOptions = generateOptions(10);
+    break;
+  case 'дней':
+    numberOptions = generateOptions(30);
+    break;
+  default:
+    numberOptions = ['1']; // fallback
+}
   const getUnitLabel = (unit) => {
     switch (unit) {
       case "h":
@@ -462,13 +484,15 @@ const handleUpload = async () => {
                             <h2 class="h2">Срок хранения</h2>
                            
                             <div className="selects-list">
-      <CustomSelect
-        options={['3', '6', '12', '24', '48']}
-        selected={number}
-        setSelected={setNumber}
-        name="number"
-        id="dateNumber"
-      />
+     <CustomSelect
+  options={numberOptions}
+  selected={number}
+  setSelected={setNumber}
+  name="number"
+  id="dateNumber"
+  unit={period}
+/>
+
       <CustomSelect
         options={['дней', 'недель', 'месяцев', 'лет']}
         selected={period}
