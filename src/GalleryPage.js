@@ -533,7 +533,8 @@ if (filesDeleted) {
    </span>
   </div>
  </footer>
- <div className={`modal ${isModalActive ? 'active' : ''}`} id="modal-gallery"  onClick={closePopup}>
+ {isModalActive && activeImage && (
+      <div className="modal active" id="imageModal" onClick={closeModal}>
   <div className="modal-content card" onClick={(e) => e.stopPropagation()}>
    <div className="modal-head --b-bottom">
     <span></span>
@@ -581,6 +582,7 @@ if (filesDeleted) {
    
   </div>
  </div>
+         )}   
        </div>
 );;
 };
