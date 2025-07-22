@@ -44,7 +44,7 @@ function UploadService() {
   const [filesUploaded, setFilesUploaded] = useState(false);
   const [isdelChecked, setIsdelChecked] = useState(false);
   const [error, setError] = useState(""); // Error message state
-  const [number, setNumber] = useState('3');
+  const [number, setNumber] = useState('1');
   const [period, setPeriod] = useState('дней');
      const handleExpirationChange = (event) => {
     const value = event.target.value;
